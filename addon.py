@@ -120,22 +120,16 @@ class App:
     def list_albums(self, folderUuid):
     	n = 0
     	folders = self.db.GetFolderList(folderUuid)
-    	for (name, uuid, modelId) in folders:
+    	for (name, uuid) in folders:
             url = build_url({'action': 'albums', 'folderUuid': uuid})
-            if modelId:
-                thumbnailPath = glob.glob(os.path.join(self.photo_app_thumbnail_path, ('%04x' % modelId)[0:2], '00', '%x' % modelId, '*.jpg'))[-1]
-            else:
-                thumbnailPath = 'DefaultFolder.png'
+            thumbnailPath = 'DefaultFolder.png'
             item = gui.ListItem(name, iconImage=thumbnailPath, thumbnailImage=thumbnailPath)
     	    plugin.addDirectoryItem(addon_handle, url, item, True)
     	    n += 1
     	albums = self.db.GetAlbumList(folderUuid)
     	for (name, uuid, modelId) in albums:
             url = build_url({'action': 'albums', 'uuid': uuid})
-            if modelId:
-                thumbnailPath = glob.glob(os.path.join(self.photo_app_thumbnail_path, ('%04x' % modelId)[0:2], '00', '%x' % modelId, '*.jpg'))[-1]
-            else:
-                thumbnailPath = 'DefaultFolder.png'
+            thumbnailPath = glob.glob(os.path.join(self.photo_app_thumbnail_path, ('%04x' % modelId)[0:2], '00', '%x' % modelId, '*.jpg'))[-1]
             item = gui.ListItem(name, iconImage=thumbnailPath, thumbnailImage=thumbnailPath)
     	    plugin.addDirectoryItem(addon_handle, url, item, True)
     	    n += 1

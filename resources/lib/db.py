@@ -113,11 +113,10 @@ class DB:
     	folder_list = []
     	cur = self.dbconn.cursor()
     	try:
-    	    cur.execute("""SELECT f.name, f.uuid, v.modelId
-                           FROM RKVersion v, RKFolder f
-                           WHERE v.uuid = f.posterVersionUuid
-                           AND f.isHidden = 0 AND f.isInTrash = 0 AND f.parentFolderUuid = ?
-    	                   ORDER BY name ASC""", (folderUuid,))
+    	    cur.execute("""SELECT f.name, f.uuid
+                           FROM RKFolder f
+                           WHERE f.isHidden = 0 AND f.isInTrash = 0 AND f.parentFolderUuid = ?
+    	                   ORDER BY f.name ASC""", (folderUuid,))
     	    for row in cur:
                 folder_list.append(row)
     	except Exception, e:
