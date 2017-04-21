@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<strings>
+  <!--
+      strings 30000 thru 30999 reserved for plugins and plugin settings
+      strings 31000 thru 31999 reserved for skins
+      strings 32000 thru 32999 reserved for scripts
+      strings 33000 thru 33999 reserved for common strings used in add-ons
+  -->
+  <string id="30000">写真.photoslibrary</string>
+  <string id="30001">写真</string>
+  <string id="30002">撮影地</string>
+  <string id="30003">ピープル</string>
+  <string id="30004">アルバム</string>
+  <string id="30005">ビデオ</string>
+  <string id="30100">該当なし</string>
+  <string id="30200">設定</string>
+  <string id="30210">写真ライブラリ</string>
+</strings>
