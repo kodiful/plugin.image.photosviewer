@@ -91,7 +91,8 @@ class App:
                 url = build_url({'action': 'moments', 'year': year[0], 'month': name})
                 item = gui.ListItem('%s-%s' % (year[0], name), iconImage='DefaultYear.png', thumbnailImage='DefaultYear.png')
                 contextmenu = []
-                contextmenu.append((addon.getLocalizedString(30013) % (year[0],name), 'XBMC.Container.Update(%s)' % build_url({'action': 'search_by_month', 'year': year[0], 'month': name})))
+                contextmenu.append((addon.getLocalizedString(30013) % (year[0], name), 'XBMC.Container.Update(%s)' % build_url({'action': 'search_by_month', 'year': year[0], 'month': name})))
+                contextmenu.append((addon.getLocalizedString(30012) % (year[0]), 'XBMC.Container.Update(%s)' % build_url({'action': 'search_by_year', 'year': year[0]})))
                 item.addContextMenuItems(contextmenu, replaceItems=True)
             else:
                 url = build_url({'action': 'moments', 'year': year[0], 'month': month[0], 'day': name, 'uuid': uuid})
@@ -153,6 +154,7 @@ class App:
             contextmenu.append((addon.getLocalizedString(30010), 'XBMC.Container.Update(%s)' % build_url({'action': 'search_by_timestamp', 'timestamp': imageDate})))
             if latitude and longitude:
                 contextmenu.append((addon.getLocalizedString(30011), 'XBMC.Container.Update(%s)' % build_url({'action': 'search_by_latlong', 'latitude': latitude, 'longitude': longitude})))
+            contextmenu.append((addon.getLocalizedString(30014), 'XBMC.Container.Update(%s)' % build_url({})))
             item.addContextMenuItems(contextmenu, replaceItems=True)
     	    plugin.addDirectoryItem(addon_handle, imagePath, item, False)
     	    n += 1
@@ -199,6 +201,7 @@ if __name__ == '__main__':
 
     action_result = None
     items = 0
+    mode = None
 
     log_notice('argv[0] = %s' % sys.argv[0])
     log_notice('argv[1] = %s' % sys.argv[1])
@@ -219,44 +222,45 @@ if __name__ == '__main__':
 
     if action is None:
         items = app.main_menu()
-        set_view('thumbnail')
+        mode = 'thumbnail'
     elif not (uuid is None):
         items = app.list_photos(uuid[0], action[0])
-        set_view('thumbnail')
+        mode = 'thumbnail'
     elif action[0] == 'moments':
         items = app.list_moments(year, month)
-        set_view('list')
+        mode = 'list'
     elif action[0] == 'people':
         items = app.list_people()
-        set_view('thumbnail')
+        mode = 'thumbnail'
     elif action[0] == 'places':
         items = app.list_places()
-        set_view('list')
+        mode = 'list'
     elif action[0] == 'videos':
         items = app.list_videos()
-        set_view('thumbnail')
+        mode = 'thumbnail'
     elif action[0] == 'albums':
         items = app.list_albums(folderUuid[0])
-        set_view('thumbnail')
+        mode = 'thumbnail'
 
     elif action[0] == 'search_by_year':
         items = app.list_photos((year[0]), action[0])
-        set_view('thumbnail')
+        mode = 'thumbnail'
     elif action[0] == 'search_by_month':
-        items = app.list_photos((year[0],month[0]), action[0])
-        set_view('thumbnail')
+        items = app.list_photos((year[0], month[0]), action[0])
+        mode = 'thumbnail'
     elif action[0] == 'search_by_timestamp':
         items = app.list_photos((timestamp[0]), action[0])
-        set_view('thumbnail')
+        mode = 'thumbnail'
     elif action[0] == 'search_by_latlong':
         items = app.list_photos((latitude[0], longitude[0]), action[0])
-        set_view('thumbnail')
+        mode = 'thumbnail'
 
     app.close_db()
 
     if items == 0:
         action_result = addon.getLocalizedString(30100)
     else:
+        set_view(mode)
         plugin.endOfDirectory(addon_handle, True)
 
 	xbmc.sleep(300)
