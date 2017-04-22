@@ -40,7 +40,6 @@ class App:
         qs = urlparse.parse_qs(urlparse.urlparse(sys.argv[2]).query, keep_blank_values=True)
         for key in qs.keys():
             self.params[key] = qs[key][0]
-            log_notice('init:params %s=%s' % (key,self.params[key]))
 
         # 写真アプリのパス
         self.photo_app_path = addon.getSetting('photo_library_path')
@@ -82,16 +81,21 @@ class App:
     	n = 0
     	moments = self.db.GetMomentList(year, month)
     	for (name, uuid) in moments:
-    	    print "app: moment: %s" % (name)
     	    if year is None:
-               url = build_url({'action': 'moments', 'year': name})
-               item = gui.ListItem('%s' % (int(name)), iconImage='DefaultYear.png', thumbnailImage='DefaultYear.png')
+                url = build_url({'action': 'moments', 'year': name})
+                item = gui.ListItem('%s' % (int(name)), iconImage='DefaultYear.png', thumbnailImage='DefaultYear.png')
+                contextmenu = []
+                contextmenu.append((addon.getLocalizedString(30012) % (name), 'XBMC.Container.Update(%s)' % build_url({'action': 'search_by_year', 'year': name})))
+                item.addContextMenuItems(contextmenu, replaceItems=True)
     	    elif month is None:
-               url = build_url({'action': 'moments', 'year': year[0], 'month': name})
-               item = gui.ListItem('%s-%s' % (int(year[0]), name), iconImage='DefaultYear.png', thumbnailImage='DefaultYear.png')
+                url = build_url({'action': 'moments', 'year': year[0], 'month': name})
+                item = gui.ListItem('%s-%s' % (year[0], name), iconImage='DefaultYear.png', thumbnailImage='DefaultYear.png')
+                contextmenu = []
+                contextmenu.append((addon.getLocalizedString(30013) % (year[0],name), 'XBMC.Container.Update(%s)' % build_url({'action': 'search_by_month', 'year': year[0], 'month': name})))
+                item.addContextMenuItems(contextmenu, replaceItems=True)
             else:
-               url = build_url({'action': 'moments', 'year': year[0], 'month': month[0], 'day': name, 'uuid': uuid})
-               item = gui.ListItem('%s-%s-%s' % (int(year[0]), month[0], name), iconImage='DefaultYear.png', thumbnailImage='DefaultYear.png')
+                url = build_url({'action': 'moments', 'year': year[0], 'month': month[0], 'day': name, 'uuid': uuid})
+                item = gui.ListItem('%s-%s-%s' % (year[0], month[0], name), iconImage='DefaultYear.png', thumbnailImage='DefaultYear.png')
     	    plugin.addDirectoryItem(addon_handle, url, item, True)
     	    n += 1
     	return n
@@ -138,13 +142,18 @@ class App:
     def list_photos(self, uuid, action):
     	pictures = self.db.GetPictureList(uuid, action)
     	n = 0
-    	for (imageDate, imagePath, isMissing, modelId) in pictures:
+    	for (imageDate, imagePath, isMissing, modelId, latitude, longitude) in pictures:
             thumbnailPath = glob.glob(os.path.join(self.photo_app_thumbnail_path, ('%04x' % modelId)[0:2], '00', '%x' % modelId, '*.jpg'))[-1]
             if isMissing == 0:
                 imagePath = os.path.join(self.photo_app_picture_path, smart_utf8(imagePath))
             else:
                 imagePath = thumbnailPath
             item = gui.ListItem(convert_timestamp(imageDate), iconImage=thumbnailPath, thumbnailImage=thumbnailPath)
+            contextmenu = []
+            contextmenu.append((addon.getLocalizedString(30010), 'XBMC.Container.Update(%s)' % build_url({'action': 'search_by_timestamp', 'timestamp': imageDate})))
+            if latitude and longitude:
+                contextmenu.append((addon.getLocalizedString(30011), 'XBMC.Container.Update(%s)' % build_url({'action': 'search_by_latlong', 'latitude': latitude, 'longitude': longitude})))
+            item.addContextMenuItems(contextmenu, replaceItems=True)
     	    plugin.addDirectoryItem(addon_handle, imagePath, item, False)
     	    n += 1
     	return n
@@ -191,11 +200,19 @@ if __name__ == '__main__':
     action_result = None
     items = 0
 
+    log_notice('argv[0] = %s' % sys.argv[0])
+    log_notice('argv[1] = %s' % sys.argv[1])
+    log_notice('argv[2] = %s' % sys.argv[2])
+
     action = args.get('action', None)
     folderUuid = args.get('folderUuid', None)
     uuid = args.get('uuid', None)
     year = args.get('year', None)
     month = args.get('month', None)
+
+    timestamp = args.get('timestamp', None)
+    latitude = args.get('latitude', None)
+    longitude = args.get('longitude', None)
 
     app = App()
     app.open_db()
@@ -220,6 +237,19 @@ if __name__ == '__main__':
         set_view('thumbnail')
     elif action[0] == 'albums':
         items = app.list_albums(folderUuid[0])
+        set_view('thumbnail')
+
+    elif action[0] == 'search_by_year':
+        items = app.list_photos((year[0]), action[0])
+        set_view('thumbnail')
+    elif action[0] == 'search_by_month':
+        items = app.list_photos((year[0],month[0]), action[0])
+        set_view('thumbnail')
+    elif action[0] == 'search_by_timestamp':
+        items = app.list_photos((timestamp[0]), action[0])
+        set_view('thumbnail')
+    elif action[0] == 'search_by_latlong':
+        items = app.list_photos((latitude[0], longitude[0]), action[0])
         set_view('thumbnail')
 
     app.close_db()

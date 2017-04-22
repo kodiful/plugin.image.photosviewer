@@ -147,13 +147,13 @@ class DB:
     	cur = self.dbconn.cursor()
     	try:
     	    if action == 'moments':
-    	        cur.execute("""SELECT m.imageDate, m.imagePath, m.isMissing, v.modelId
+    	        cur.execute("""SELECT m.imageDate, m.imagePath, m.isMissing, v.modelId, v.latitude, v.longitude
     	                       FROM RKMaster m, RKVersion v
     	                       WHERE m.uuid = v.masterUuid
     	                       AND v.momentUuid = ?
                                ORDER BY m.imageDate ASC""", (uuid,))
     	    elif action == 'people':
-    	        cur.execute("""SELECT m.imageDate, m.imagePath, m.isMissing, v.modelId
+    	        cur.execute("""SELECT m.imageDate, m.imagePath, m.isMissing, v.modelId, v.latitude, v.longitude
     	                       FROM RKMaster m, RKVersion v, RKFace f, RKPerson p
     	                       WHERE m.uuid = v.masterUuid
     	                       AND v.modelId = f.imageModelId
@@ -161,7 +161,7 @@ class DB:
                                AND p.uuid = ?
                                ORDER BY m.imageDate ASC""", (uuid,))
     	    elif action == 'places':
-    	        cur.execute("""SELECT m.imageDate, m.imagePath, m.isMissing, v.modelId
+    	        cur.execute("""SELECT m.imageDate, m.imagePath, m.isMissing, v.modelId, v.latitude, v.longitude
     	                       FROM RKMaster m, RKVersion v, RKPlace p
     	                       WHERE m.uuid = v.masterUuid
                                AND v.latitude > p.minLatitude
@@ -170,8 +170,41 @@ class DB:
                                AND v.longitude < p.maxLongitude
                                AND p.uuid = ?
                                ORDER BY m.imageDate ASC""", (uuid,))
+    	    elif action == 'search_by_year':
+                (year) = uuid
+    	        cur.execute("""SELECT m.imageDate, m.imagePath, m.isMissing, v.modelId, v.latitude, v.longitude
+    	                       FROM RKMaster m, RKVersion v
+    	                       WHERE m.uuid = v.masterUuid
+                               AND strftime('%Y', m.imageDate, 'unixepoch', 'localtime') = ?
+                               ORDER BY m.imageDate ASC""", ('%d' % (int(year)-31),))
+    	    elif action == 'search_by_month':
+                (year, month) = uuid
+    	        cur.execute("""SELECT m.imageDate, m.imagePath, m.isMissing, v.modelId, v.latitude, v.longitude
+    	                       FROM RKMaster m, RKVersion v
+    	                       WHERE m.uuid = v.masterUuid
+                               AND strftime('%Y-%m', m.imageDate, 'unixepoch', 'localtime') = ?
+                               ORDER BY m.imageDate ASC""", ('%d-%s' % (int(year)-31, month),))
+    	    elif action == 'search_by_timestamp':
+                (timestamp) = uuid
+                t = int(float(timestamp))
+                t1 = t - t % 86400
+                t2 = t1 + 86400
+    	        cur.execute("""SELECT m.imageDate, m.imagePath, m.isMissing, v.modelId, v.latitude, v.longitude
+    	                       FROM RKMaster m, RKVersion v
+    	                       WHERE m.uuid = v.masterUuid
+                               AND m.imageDate >= ?
+                               AND m.imageDate < ?
+                               ORDER BY m.imageDate ASC""", (t1, t2,))
+    	    elif action == 'search_by_latlong':
+                (latitude, longitude) = uuid
+    	        cur.execute("""SELECT m.imageDate, m.imagePath, m.isMissing, v.modelId, v.latitude, v.longitude
+    	                       FROM RKMaster m, RKVersion v
+    	                       WHERE m.uuid = v.masterUuid
+                               AND v.latitude != ""
+                               AND v.longitude != ""
+                               ORDER BY abs(v.latitude - ?) + abs(v.longitude - ?) ASC LIMIT 100""", (latitude, longitude,))
     	    else:
-    	        cur.execute("""SELECT m.imageDate, m.imagePath, m.isMissing, v.modelId
+    	        cur.execute("""SELECT m.imageDate, m.imagePath, m.isMissing, v.modelId, v.latitude, v.longitude
     	                       FROM RKMaster m, RKVersion v, RKCustomSortOrder o
     	                       WHERE m.uuid = v.masterUuid
                                AND v.Uuid = o.objectUuid
