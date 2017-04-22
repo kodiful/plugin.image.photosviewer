@@ -17,6 +17,10 @@
   <string id="30012">%s年の写真を検索</string>
   <string id="30013">%s年%s月の写真を検索</string>
   <string id="30014">トップに戻る</string>
+  <string id="30015">%s年%s月%s日</string>
+  <string id="30016">%s年%s月</string>
+  <string id="30017">%s年</string>
+  <string id="30018">月,火,水,木,金,土,日</string>
   <string id="30100">該当なし</string>
   <string id="30200">設定</string>
   <string id="30210">写真ライブラリ</string>

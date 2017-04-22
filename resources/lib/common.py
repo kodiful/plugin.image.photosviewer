@@ -36,20 +36,3 @@ def smart_unicode(s):
 
 def smart_utf8(s):
     return smart_unicode(s).encode('utf-8')
-
-def set_view(mode=None):
-    skin_used = xbmc.getSkinDir()
-    if skin_used == 'skin.mimic':
-        if mode == 'thumbnail':
-            mode = 52
-        elif mode == 'picture':
-            mode = 510
-        elif mode == 'list':
-            mode = 50
-    if mode:
-        xbmc.executebuiltin("Container.SetViewMode(%d)" % (mode))
-
-def convert_timestamp(timestamp, date_format='%Y-%m-%d %H:%M'):
-    t = datetime.datetime.fromtimestamp(int(timestamp))
-    t = t.replace(year=t.year+31)
-    return t.strftime(date_format)

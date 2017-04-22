@@ -17,6 +17,7 @@ import xbmcvfs
 
 from resources.lib.common import *
 from resources.lib.db import *
+from resources.lib.holidays import *
 
 addon = xbmcaddon.Addon()
 
@@ -31,6 +32,23 @@ args = urlparse.parse_qs(sys.argv[2][1:])
 
 def build_url(query):
     return base_url + '?' + urllib.urlencode(query)
+
+def convert_timestamp(timestamp, date_format='%Y-%m-%d %H:%M'):
+    t = datetime.datetime.fromtimestamp(int(timestamp))
+    t = t.replace(year=t.year+31)
+    return t.strftime(date_format)
+
+def set_view(mode=None):
+    skin_used = xbmc.getSkinDir()
+    if skin_used == 'skin.mimic':
+        if mode == 'thumbnail':
+            mode = 52
+        elif mode == 'picture':
+            mode = 510
+        elif mode == 'list':
+            mode = 50
+    if mode:
+        xbmc.executebuiltin("Container.SetViewMode(%d)" % (mode))
 
 class App:
 
@@ -83,20 +101,28 @@ class App:
     	for (name, uuid) in moments:
     	    if year is None:
                 url = build_url({'action': 'moments', 'year': name})
-                item = gui.ListItem('%s' % (int(name)), iconImage='DefaultYear.png', thumbnailImage='DefaultYear.png')
+                item = gui.ListItem(addon.getLocalizedString(30017) % (int(name)), iconImage='DefaultYear.png', thumbnailImage='DefaultYear.png')
                 contextmenu = []
                 contextmenu.append((addon.getLocalizedString(30012) % (name), 'XBMC.Container.Update(%s)' % build_url({'action': 'search_by_year', 'year': name})))
                 item.addContextMenuItems(contextmenu, replaceItems=True)
     	    elif month is None:
                 url = build_url({'action': 'moments', 'year': year[0], 'month': name})
-                item = gui.ListItem('%s-%s' % (year[0], name), iconImage='DefaultYear.png', thumbnailImage='DefaultYear.png')
+                item = gui.ListItem(addon.getLocalizedString(30016) % (year[0], name), iconImage='DefaultYear.png', thumbnailImage='DefaultYear.png')
                 contextmenu = []
                 contextmenu.append((addon.getLocalizedString(30013) % (year[0], name), 'XBMC.Container.Update(%s)' % build_url({'action': 'search_by_month', 'year': year[0], 'month': name})))
                 contextmenu.append((addon.getLocalizedString(30012) % (year[0]), 'XBMC.Container.Update(%s)' % build_url({'action': 'search_by_year', 'year': year[0]})))
                 item.addContextMenuItems(contextmenu, replaceItems=True)
             else:
                 url = build_url({'action': 'moments', 'year': year[0], 'month': month[0], 'day': name, 'uuid': uuid})
-                item = gui.ListItem('%s-%s-%s' % (year[0], month[0], name), iconImage='DefaultYear.png', thumbnailImage='DefaultYear.png')
+                w = addon.getLocalizedString(30018).split(',')
+                k = datetime.date(int(year[0]), int(month[0]), int(name)).weekday()
+                d = (year[0], month[0], name)
+                itemname = (addon.getLocalizedString(30015) % d) + ('(%s)' % w[k])
+                if isholiday('%s-%s-%s' % d) or k == 6:
+                    itemname = '[COLOR red]' + itemname + '[/COLOR]'
+                elif k == 5:
+                    itemname = '[COLOR blue]' + itemname + '[/COLOR]'
+                item = gui.ListItem(itemname, iconImage='DefaultYear.png', thumbnailImage='DefaultYear.png')
     	    plugin.addDirectoryItem(addon_handle, url, item, True)
     	    n += 1
     	return n
