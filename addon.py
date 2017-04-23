@@ -38,18 +38,6 @@ def convert_timestamp(timestamp, date_format='%Y-%m-%d %H:%M'):
     t = t.replace(year=t.year+31)
     return t.strftime(date_format)
 
-def set_view(mode=None):
-    skin_used = xbmc.getSkinDir()
-    if skin_used == 'skin.mimic':
-        if mode == 'thumbnail':
-            mode = 52
-        elif mode == 'picture':
-            mode = 510
-        elif mode == 'list':
-            mode = 50
-    if mode:
-        xbmc.executebuiltin("Container.SetViewMode(%d)" % (mode))
-
 class App:
 
     def __init__(self):
@@ -227,7 +215,6 @@ if __name__ == '__main__':
 
     action_result = None
     items = 0
-    mode = None
 
     log_notice('argv[0] = %s' % sys.argv[0])
     log_notice('argv[1] = %s' % sys.argv[1])
@@ -248,25 +235,18 @@ if __name__ == '__main__':
 
     if action is None:
         items = app.main_menu()
-        mode = 'thumbnail'
     elif not (uuid is None):
         items = app.list_photos(uuid[0], action[0])
-        mode = 'thumbnail'
     elif action[0] == 'moments':
         items = app.list_moments(year, month)
-        mode = 'list'
     elif action[0] == 'people':
         items = app.list_people()
-        mode = 'thumbnail'
     elif action[0] == 'places':
         items = app.list_places()
-        mode = 'list'
     elif action[0] == 'videos':
         items = app.list_videos()
-        mode = 'thumbnail'
     elif action[0] == 'albums':
         items = app.list_albums(folderUuid[0])
-        mode = 'thumbnail'
 
     elif action[0] == 'search_by_year':
         items = app.list_photos((year[0]), action[0])
@@ -286,7 +266,6 @@ if __name__ == '__main__':
     if items == 0:
         action_result = addon.getLocalizedString(30100)
     else:
-        set_view(mode)
         plugin.endOfDirectory(addon_handle, True)
 
 	xbmc.sleep(300)
