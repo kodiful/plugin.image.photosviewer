@@ -64,7 +64,7 @@ class DB:
     	place_list = []
     	cur = self.dbconn.cursor()
     	try:
-    	    cur.execute("""SELECT defaultName, uuid FROM RKPlace
+    	    cur.execute("""SELECT defaultName, uuid, minLatitude, maxLatitude, minLongitude, maxLongitude FROM RKPlace
                            WHERE type <= 16
     	                   ORDER BY type, defaultName ASC""")
     	    for row in cur:

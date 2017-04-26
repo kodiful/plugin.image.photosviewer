@@ -12,11 +12,11 @@ import xbmc
 import xbmcgui as gui
 import xbmcplugin as plugin
 import xbmcaddon
-
 import xbmcvfs
 
 from resources.lib.common import *
 from resources.lib.db import *
+from resources.lib.map import *
 from resources.lib.holidays import *
 
 addon = xbmcaddon.Addon()
@@ -117,10 +117,15 @@ class App:
 
     def list_places(self):
     	n = 0
+        map = Map()
     	places = self.db.GetPlaceList()
-    	for (name, uuid) in places:
+    	for (name, uuid, minLatitude, maxLatitude, minLongitude, maxLongitude) in places:
             url = build_url({'action': 'places', 'uuid': uuid})
-            item = gui.ListItem(name, iconImage='DefaultCountry.png', thumbnailImage='DefaultCountry.png')
+            try:
+                thumbnail = map.create((minLatitude, minLongitude), (maxLatitude, maxLongitude))
+            except:
+                thumbnail = 'DefaultCountry.png'
+            item = gui.ListItem(name, iconImage=thumbnail, thumbnailImage=thumbnail)
     	    plugin.addDirectoryItem(addon_handle, url, item, True)
     	    n += 1
     	return n
