@@ -92,23 +92,6 @@ class DB:
     	cur.close()
     	return person_list
 
-    def GetVideoList(self):
-    	video_list = []
-    	cur = self.dbconn.cursor()
-    	try:
-            cur.execute("""SELECT m.imageDate, m.imagePath, m.isMissing, v.modelId
-                           FROM RKMaster m, RKVersion v
-                           WHERE m.uuid = v.masterUuid
-                           AND m.isMissing = 0 AND v.naturalDuration > 0
-                           ORDER BY m.imageDate ASC""")
-    	    for row in cur:
-                video_list.append(row)
-    	except Exception, e:
-    	    print "photoapp.db: GetVideoList: " + smart_utf8(e)
-    	    pass
-    	cur.close()
-    	return video_list
-
     def GetFolderList(self, folderUuid):
     	folder_list = []
     	cur = self.dbconn.cursor()
@@ -141,6 +124,23 @@ class DB:
     	    pass
     	cur.close()
     	return album_list
+
+    def GetVideoList(self):
+    	video_list = []
+    	cur = self.dbconn.cursor()
+    	try:
+            cur.execute("""SELECT m.imageDate, m.imagePath, m.isMissing, v.modelId, v.latitude, v.longitude
+                           FROM RKMaster m, RKVersion v
+                           WHERE m.uuid = v.masterUuid
+                           AND m.isMissing = 0 AND v.naturalDuration > 0
+                           ORDER BY m.imageDate ASC""")
+    	    for row in cur:
+                video_list.append(row)
+    	except Exception, e:
+    	    print "photoapp.db: GetVideoList: " + smart_utf8(e)
+    	    pass
+    	cur.close()
+    	return video_list
 
     def GetPictureList(self, uuid, action):
     	picture_list = []

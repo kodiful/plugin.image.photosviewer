@@ -182,13 +182,19 @@ class App:
     def list_videos(self):
     	n = 0
     	videos = self.db.GetVideoList()
-    	for (imageDate, imagePath, isMissing, modelId) in videos:
+    	for (imageDate, imagePath, isMissing, modelId, latitude, longitude) in videos:
             thumbnailPath = glob.glob(os.path.join(self.photo_app_thumbnail_path, ('%04x' % modelId)[0:2], '00', '%x' % modelId, '*.jpg'))[-1]
             if isMissing == 0:
                 imagePath = os.path.join(self.photo_app_picture_path, smart_utf8(imagePath))
             else:
                 imagePath = thumbnailPath
             item = gui.ListItem(convert_timestamp(imageDate), iconImage=thumbnailPath, thumbnailImage=thumbnailPath)
+            contextmenu = []
+            contextmenu.append((addon.getLocalizedString(30010), 'XBMC.Container.Update(%s)' % build_url({'action': 'search_by_timestamp', 'timestamp': imageDate})))
+            if latitude and longitude:
+                contextmenu.append((addon.getLocalizedString(30011), 'XBMC.Container.Update(%s)' % build_url({'action': 'search_by_latlong', 'latitude': latitude, 'longitude': longitude})))
+            contextmenu.append((addon.getLocalizedString(30014), 'XBMC.Container.Update(%s)' % build_url({})))
+            item.addContextMenuItems(contextmenu, replaceItems=True)
     	    plugin.addDirectoryItem(addon_handle, imagePath, item, False)
     	    n += 1
     	return n
