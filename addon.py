@@ -37,21 +37,27 @@ def convert_timestamp(year=None, month=None, day=None, hour=None, minute=None, t
     if timestamp:
         t = datetime.datetime.fromtimestamp(int(timestamp))
         (year,month,day,hour,minute) = t.replace(year=t.year+31).strftime('%Y,%m,%d,%H,%M').split(',')
-    if year and month and day:
-        w = addon.getLocalizedString(30018).split(',')
-        k = datetime.date(int(year), int(month), int(day)).weekday()
-        if hour and minute:
-            itemname = addon.getLocalizedString(30030).format(yy=year, mm=month, dd=day, ww=w[k], h=hour, m=minute)
+    if year:
+        if month:
+            m = addon.getLocalizedString(30017).split(',')
+            j = int(month)-1
+            if day:
+                w = addon.getLocalizedString(30018).split(',')
+                k = datetime.date(int(year), int(month), int(day)).weekday()
+                if hour and minute:
+                    itemname = addon.getLocalizedString(30030).format(yy=year, mm=m[j], dd=day, ww=w[k], h=hour, m=minute)
+                else:
+                    itemname = addon.getLocalizedString(30031).format(yy=year, mm=m[j], dd=day, ww=w[k])
+                if isholiday('%s-%s-%s' % (year,month,day)) or k == 6:
+                    itemname = '[COLOR red]' + itemname + '[/COLOR]'
+                elif k == 5:
+                    itemname = '[COLOR blue]' + itemname + '[/COLOR]'
+            else:
+                itemname = addon.getLocalizedString(30032).format(yy=year, mm=m[j])
         else:
-            itemname = addon.getLocalizedString(30031).format(yy=year, mm=month, dd=day)
-        if isholiday('%s-%s-%s' % (year,month,day)) or k == 6:
-            itemname = '[COLOR red]' + itemname + '[/COLOR]'
-        elif k == 5:
-            itemname = '[COLOR blue]' + itemname + '[/COLOR]'
-    elif year and month:
-        itemname = addon.getLocalizedString(30032).format(yy=year, mm=month)
-    elif year:
-        itemname = addon.getLocalizedString(30033).format(yy=year)
+            itemname = addon.getLocalizedString(30033).format(yy=year)
+    else:
+        itemname = ''
     return itemname
 
 class App:
