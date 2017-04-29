@@ -33,10 +33,26 @@ args = urlparse.parse_qs(sys.argv[2][1:])
 def build_url(query):
     return base_url + '?' + urllib.urlencode(query)
 
-def convert_timestamp(timestamp, date_format='%Y-%m-%d %H:%M'):
-    t = datetime.datetime.fromtimestamp(int(timestamp))
-    t = t.replace(year=t.year+31)
-    return t.strftime(date_format)
+def convert_timestamp(year=None, month=None, day=None, hour=None, minute=None, timestamp=None):
+    if timestamp:
+        t = datetime.datetime.fromtimestamp(int(timestamp))
+        (year,month,day,hour,minute) = t.replace(year=t.year+31).strftime('%Y,%m,%d,%H,%M').split(',')
+    if year and month and day:
+        w = addon.getLocalizedString(30018).split(',')
+        k = datetime.date(int(year), int(month), int(day)).weekday()
+        if hour and minute:
+            itemname = addon.getLocalizedString(30030).format(yy=year, mm=month, dd=day, ww=w[k], h=hour, m=minute)
+        else:
+            itemname = addon.getLocalizedString(30031).format(yy=year, mm=month, dd=day)
+        if isholiday('%s-%s-%s' % (year,month,day)) or k == 6:
+            itemname = '[COLOR red]' + itemname + '[/COLOR]'
+        elif k == 5:
+            itemname = '[COLOR blue]' + itemname + '[/COLOR]'
+    elif year and month:
+        itemname = addon.getLocalizedString(30032).format(yy=year, mm=month)
+    elif year:
+        itemname = addon.getLocalizedString(30033).format(yy=year)
+    return itemname
 
 class App:
 
@@ -89,28 +105,20 @@ class App:
     	for (name, uuid) in moments:
     	    if year is None:
                 url = build_url({'action': 'moments', 'year': name})
-                item = gui.ListItem(addon.getLocalizedString(30017) % (int(name)), iconImage='DefaultYear.png', thumbnailImage='DefaultYear.png')
+                item = gui.ListItem(convert_timestamp(year=name), iconImage='DefaultYear.png', thumbnailImage='DefaultYear.png')
                 contextmenu = []
-                contextmenu.append((addon.getLocalizedString(30012) % (name), 'XBMC.Container.Update(%s)' % build_url({'action': 'search_by_year', 'year': name})))
+                contextmenu.append((addon.getLocalizedString(30012).format(t=convert_timestamp(year=name)), 'XBMC.Container.Update(%s)' % build_url({'action': 'search_by_year', 'year': name})))
                 item.addContextMenuItems(contextmenu, replaceItems=True)
     	    elif month is None:
                 url = build_url({'action': 'moments', 'year': year[0], 'month': name})
-                item = gui.ListItem(addon.getLocalizedString(30016) % (year[0], name), iconImage='DefaultYear.png', thumbnailImage='DefaultYear.png')
+                item = gui.ListItem(convert_timestamp(year=year[0],month=name), iconImage='DefaultYear.png', thumbnailImage='DefaultYear.png')
                 contextmenu = []
-                contextmenu.append((addon.getLocalizedString(30013) % (year[0], name), 'XBMC.Container.Update(%s)' % build_url({'action': 'search_by_month', 'year': year[0], 'month': name})))
-                contextmenu.append((addon.getLocalizedString(30012) % (year[0]), 'XBMC.Container.Update(%s)' % build_url({'action': 'search_by_year', 'year': year[0]})))
+                contextmenu.append((addon.getLocalizedString(30012).format(t=convert_timestamp(year=year[0],month=name)), 'XBMC.Container.Update(%s)' % build_url({'action': 'search_by_month', 'year': year[0], 'month': name})))
+                contextmenu.append((addon.getLocalizedString(30012).format(t=convert_timestamp(year=year[0])), 'XBMC.Container.Update(%s)' % build_url({'action': 'search_by_year', 'year': year[0]})))
                 item.addContextMenuItems(contextmenu, replaceItems=True)
             else:
                 url = build_url({'action': 'moments', 'year': year[0], 'month': month[0], 'day': name, 'uuid': uuid})
-                w = addon.getLocalizedString(30018).split(',')
-                k = datetime.date(int(year[0]), int(month[0]), int(name)).weekday()
-                d = (year[0], month[0], name)
-                itemname = (addon.getLocalizedString(30015) % d) + ('(%s)' % w[k])
-                if isholiday('%s-%s-%s' % d) or k == 6:
-                    itemname = '[COLOR red]' + itemname + '[/COLOR]'
-                elif k == 5:
-                    itemname = '[COLOR blue]' + itemname + '[/COLOR]'
-                item = gui.ListItem(itemname, iconImage='DefaultYear.png', thumbnailImage='DefaultYear.png')
+                item = gui.ListItem(convert_timestamp(year=year[0],month=month[0],day=name), iconImage='DefaultYear.png', thumbnailImage='DefaultYear.png')
     	    plugin.addDirectoryItem(addon_handle, url, item, True)
     	    n += 1
     	return n
@@ -168,7 +176,7 @@ class App:
                 imagePath = os.path.join(self.photo_app_picture_path, smart_utf8(imagePath))
             else:
                 imagePath = thumbnailPath
-            item = gui.ListItem(convert_timestamp(imageDate), iconImage=thumbnailPath, thumbnailImage=thumbnailPath)
+            item = gui.ListItem(convert_timestamp(timestamp=imageDate), iconImage=thumbnailPath, thumbnailImage=thumbnailPath)
             contextmenu = []
             contextmenu.append((addon.getLocalizedString(30010), 'XBMC.Container.Update(%s)' % build_url({'action': 'search_by_timestamp', 'timestamp': imageDate})))
             if latitude and longitude:
@@ -188,7 +196,7 @@ class App:
                 imagePath = os.path.join(self.photo_app_picture_path, smart_utf8(imagePath))
             else:
                 imagePath = thumbnailPath
-            item = gui.ListItem(convert_timestamp(imageDate), iconImage=thumbnailPath, thumbnailImage=thumbnailPath)
+            item = gui.ListItem(convert_timestamp(timestamp=imageDate), iconImage=thumbnailPath, thumbnailImage=thumbnailPath)
             contextmenu = []
             contextmenu.append((addon.getLocalizedString(30010), 'XBMC.Container.Update(%s)' % build_url({'action': 'search_by_timestamp', 'timestamp': imageDate})))
             if latitude and longitude:
