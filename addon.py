@@ -219,7 +219,7 @@ class App:
     	plugin.addDirectoryItem(addon_handle, url, item, True)
 
         url = build_url({'action': 'people'})
-        item = gui.ListItem(addon.getLocalizedString(30003), iconImage='DefaultUser.png', thumbnailImage='DefaultUser.png')
+        item = gui.ListItem(addon.getLocalizedString(30003), iconImage='DefaultArtist.png', thumbnailImage='DefaultArtist.png')
     	plugin.addDirectoryItem(addon_handle, url, item, True)
 
         url = build_url({'action': 'places'})
