@@ -33,25 +33,30 @@ class DB:
     	except Exception, e:
     	    pass
 
-    def GetMomentList(self, year, month):
+    def GetMomentList(self, year, month, day):
     	moment_list = []
     	cur = self.dbconn.cursor()
     	try:
-    	    #SELECT strftime('%Y', startDate, 'unixepoch', 'localtime'), startDate FROM `RKMoment` WHERE  strftime('%Y', startDate, 'unixepoch', 'localtime') = '1974'
     	    if year is None:
-    	        cur.execute("""SELECT strftime('%Y', startDate, 'unixepoch', 'localtime')+31, 0
-    	                       FROM RKMoment
-    	                       GROUP BY strftime('%Y', startDate, 'unixepoch', 'localtime')""")
+    	        cur.execute("""SELECT strftime('%Y', imageDate+978307200, 'unixepoch', 'localtime') as y
+    	                       FROM RKMaster
+    	                       GROUP BY y
+    	                       ORDER BY imageDate
+                               """)
     	    elif month is None:
-    	        cur.execute("""SELECT strftime('%m', startDate, 'unixepoch', 'localtime'), 0
-    	                       FROM RKMoment
-    	                       WHERE strftime('%Y', startDate, 'unixepoch', 'localtime') = ?
-    	                       GROUP BY strftime('%Y-%m', startDate, 'unixepoch', 'localtime')""", ('%s' % (int(year[0])-31),))
-    	    else:
-    	        cur.execute("""SELECT strftime('%d', startDate, 'unixepoch', 'localtime'), uuid
-    	                       FROM RKMoment
-    	                       WHERE strftime('%Y-%m', startDate, 'unixepoch', 'localtime') = ?
-    	                       ORDER BY startDate""", ('%s-%s' % (int(year[0])-31, month[0]),))
+    	        cur.execute("""SELECT strftime('%m', imageDate+978307200, 'unixepoch', 'localtime') as m
+    	                       FROM RKMaster
+    	                       WHERE strftime('%Y', imageDate+978307200, 'unixepoch', 'localtime') = ?
+    	                       GROUP BY m
+    	                       ORDER BY imageDate
+                               """, ('%s' % (year[0]),))
+    	    elif day is None:
+    	        cur.execute("""SELECT strftime('%d', imageDate+978307200, 'unixepoch', 'localtime') as d
+    	                       FROM RKMaster
+    	                       WHERE strftime('%Y-%m', imageDate+978307200, 'unixepoch', 'localtime') = ?
+    	                       GROUP BY d
+    	                       ORDER BY imageDate
+                               """, ('%s-%s' % (year[0], month[0]),))
     	    for row in cur:
                 moment_list.append(row)
     	except Exception, e:
@@ -150,7 +155,7 @@ class DB:
     	        cur.execute("""SELECT m.imageDate, m.imagePath, m.isMissing, v.modelId, v.latitude, v.longitude
     	                       FROM RKMaster m, RKVersion v
     	                       WHERE m.uuid = v.masterUuid
-    	                       AND v.momentUuid = ?
+    	                       AND m.uuid = ?
                                ORDER BY m.imageDate ASC""", (uuid,))
     	    elif action == 'people':
     	        cur.execute("""SELECT m.imageDate, m.imagePath, m.isMissing, v.modelId, v.latitude, v.longitude
@@ -175,15 +180,22 @@ class DB:
     	        cur.execute("""SELECT m.imageDate, m.imagePath, m.isMissing, v.modelId, v.latitude, v.longitude
     	                       FROM RKMaster m, RKVersion v
     	                       WHERE m.uuid = v.masterUuid
-                               AND strftime('%Y', m.imageDate, 'unixepoch', 'localtime') = ?
-                               ORDER BY m.imageDate ASC""", ('%d' % (int(year)-31),))
+                               AND strftime('%Y', m.imageDate+978307200, 'unixepoch', 'localtime') = ?
+                               ORDER BY m.imageDate ASC""", ('%s' % (year),))
     	    elif action == 'search_by_month':
                 (year, month) = uuid
     	        cur.execute("""SELECT m.imageDate, m.imagePath, m.isMissing, v.modelId, v.latitude, v.longitude
     	                       FROM RKMaster m, RKVersion v
     	                       WHERE m.uuid = v.masterUuid
-                               AND strftime('%Y-%m', m.imageDate, 'unixepoch', 'localtime') = ?
-                               ORDER BY m.imageDate ASC""", ('%d-%s' % (int(year)-31, month),))
+                               AND strftime('%Y-%m', m.imageDate+978307200, 'unixepoch', 'localtime') = ?
+                               ORDER BY m.imageDate ASC""", ('%s-%s' % (year, month),))
+    	    elif action == 'search_by_day':
+                (year, month, day) = uuid
+    	        cur.execute("""SELECT m.imageDate, m.imagePath, m.isMissing, v.modelId, v.latitude, v.longitude
+    	                       FROM RKMaster m, RKVersion v
+    	                       WHERE m.uuid = v.masterUuid
+                               AND strftime('%Y-%m-%d', m.imageDate+978307200, 'unixepoch', 'localtime') = ?
+                               ORDER BY m.imageDate ASC""", ('%s-%s-%s' % (year, month, day),))
     	    elif action == 'search_by_timestamp':
                 (timestamp) = uuid
                 t = int(float(timestamp))

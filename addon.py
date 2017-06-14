@@ -33,22 +33,22 @@ args = urlparse.parse_qs(sys.argv[2][1:])
 def build_url(query):
     return base_url + '?' + urllib.urlencode(query)
 
-def convert_timestamp(year=None, month=None, date=None, hour=None, minute=None, timestamp=None):
+def convert_timestamp(year=None, month=None, day=None, hour=None, minute=None, timestamp=None):
     if timestamp:
-        t = datetime.datetime.fromtimestamp(int(timestamp))
-        (year,month,date,hour,minute) = t.replace(year=t.year+31).strftime('%Y,%m,%d,%H,%M').split(',')
+        t = datetime.datetime.fromtimestamp(int(timestamp)+978307200)
+        (year,month,day,hour,minute) = t.replace(year=t.year).strftime('%Y,%m,%d,%H,%M').split(',')
     if year:
         if month:
             m = addon.getLocalizedString(30017).split(',')
             mindex = int(month)-1
-            if date:
+            if day:
                 d = addon.getLocalizedString(30018).split(',')
-                dindex = datetime.date(int(year), int(month), int(date)).weekday()
+                dindex = datetime.date(int(year), int(month), int(day)).weekday()
                 if hour and minute:
-                    itemname = addon.getLocalizedString(30030).format(year=year, month=m[mindex], date=date, day=d[dindex], hour=hour, minute=minute)
+                    itemname = addon.getLocalizedString(30030).format(year=year, month=m[mindex], day=day, day7=d[dindex], hour=hour, minute=minute)
                 else:
-                    itemname = addon.getLocalizedString(30031).format(year=year, month=m[mindex], date=date, day=d[dindex])
-                if isholiday('%s-%s-%s' % (year,month,date)) or dindex == 6:
+                    itemname = addon.getLocalizedString(30031).format(year=year, month=m[mindex], day=day, day7=d[dindex])
+                if isholiday('%s-%s-%s' % (year,month,day)) or dindex == 6:
                     itemname = '[COLOR red]' + itemname + '[/COLOR]'
                 elif dindex == 5:
                     itemname = '[COLOR blue]' + itemname + '[/COLOR]'
@@ -105,10 +105,10 @@ class App:
     	except:
     	    pass
 
-    def list_moments(self, year, month):
+    def list_moments(self, year, month, day):
     	n = 0
-    	moments = self.db.GetMomentList(year, month)
-    	for (name, uuid) in moments:
+    	moments = self.db.GetMomentList(year, month, day)
+    	for (name,) in moments:
     	    if year is None:
                 url = build_url({'action': 'moments', 'year': name})
                 item = gui.ListItem(convert_timestamp(year=name), iconImage='DefaultYear.png', thumbnailImage='DefaultYear.png')
@@ -122,9 +122,13 @@ class App:
                 contextmenu.append((addon.getLocalizedString(30012).format(period=convert_timestamp(year=year[0],month=name)), 'XBMC.Container.Update(%s)' % build_url({'action': 'search_by_month', 'year': year[0], 'month': name})))
                 contextmenu.append((addon.getLocalizedString(30012).format(period=convert_timestamp(year=year[0])), 'XBMC.Container.Update(%s)' % build_url({'action': 'search_by_year', 'year': year[0]})))
                 item.addContextMenuItems(contextmenu, replaceItems=True)
-            else:
-                url = build_url({'action': 'moments', 'uuid': uuid})
-                item = gui.ListItem(convert_timestamp(year=year[0],month=month[0],date=name), iconImage='DefaultYear.png', thumbnailImage='DefaultYear.png')
+    	    elif day is None:
+                url = build_url({'action': 'search_by_day', 'year': year[0], 'month': month[0], 'day': name})
+                item = gui.ListItem(convert_timestamp(year=year[0],month=month[0],day=name), iconImage='DefaultYear.png', thumbnailImage='DefaultYear.png')
+                contextmenu = []
+                contextmenu.append((addon.getLocalizedString(30012).format(period=convert_timestamp(year=year[0],month=month[0])), 'XBMC.Container.Update(%s)' % build_url({'action': 'search_by_month', 'year': year[0], 'month': month[0]})))
+                contextmenu.append((addon.getLocalizedString(30012).format(period=convert_timestamp(year=year[0])), 'XBMC.Container.Update(%s)' % build_url({'action': 'search_by_year', 'year': year[0]})))
+                item.addContextMenuItems(contextmenu, replaceItems=True)
     	    plugin.addDirectoryItem(addon_handle, url, item, True)
     	    n += 1
     	return n
@@ -250,6 +254,7 @@ if __name__ == '__main__':
     uuid = args.get('uuid', None)
     year = args.get('year', None)
     month = args.get('month', None)
+    day = args.get('day', None)
 
     timestamp = args.get('timestamp', None)
     latitude = args.get('latitude', None)
@@ -263,7 +268,7 @@ if __name__ == '__main__':
     elif not (uuid is None):
         items = app.list_photos(uuid[0], action[0])
     elif action[0] == 'moments':
-        items = app.list_moments(year, month)
+        items = app.list_moments(year, month, day)
     elif action[0] == 'people':
         items = app.list_people()
     elif action[0] == 'places':
@@ -278,6 +283,9 @@ if __name__ == '__main__':
         mode = 'thumbnail'
     elif action[0] == 'search_by_month':
         items = app.list_photos((year[0], month[0]), action[0])
+        mode = 'thumbnail'
+    elif action[0] == 'search_by_day':
+        items = app.list_photos((year[0], month[0], day[0]), action[0])
         mode = 'thumbnail'
     elif action[0] == 'search_by_timestamp':
         items = app.list_photos((timestamp[0]), action[0])
