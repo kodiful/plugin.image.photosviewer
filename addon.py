@@ -105,9 +105,9 @@ class App:
     	except:
     	    pass
 
-    def list_moments(self, year, month, day):
+    def list_moments(self, year, month):
     	n = 0
-    	moments = self.db.GetMomentList(year, month, day)
+    	moments = self.db.GetMomentList(year, month)
     	for (name,) in moments:
     	    if year is None:
                 url = build_url({'action': 'moments', 'year': name})
@@ -122,7 +122,7 @@ class App:
                 contextmenu.append((addon.getLocalizedString(30012).format(period=convert_timestamp(year=year[0],month=name)), 'XBMC.Container.Update(%s)' % build_url({'action': 'search_by_month', 'year': year[0], 'month': name})))
                 contextmenu.append((addon.getLocalizedString(30012).format(period=convert_timestamp(year=year[0])), 'XBMC.Container.Update(%s)' % build_url({'action': 'search_by_year', 'year': year[0]})))
                 item.addContextMenuItems(contextmenu, replaceItems=True)
-    	    elif day is None:
+    	    else:
                 url = build_url({'action': 'search_by_day', 'year': year[0], 'month': month[0], 'day': name})
                 item = gui.ListItem(convert_timestamp(year=year[0],month=month[0],day=name), iconImage='DefaultYear.png', thumbnailImage='DefaultYear.png')
                 contextmenu = []
@@ -268,7 +268,7 @@ if __name__ == '__main__':
     elif not (uuid is None):
         items = app.list_photos(uuid[0], action[0])
     elif action[0] == 'moments':
-        items = app.list_moments(year, month, day)
+        items = app.list_moments(year, month)
     elif action[0] == 'people':
         items = app.list_people()
     elif action[0] == 'places':

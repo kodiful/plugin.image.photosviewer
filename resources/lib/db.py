@@ -33,7 +33,7 @@ class DB:
     	except Exception, e:
     	    pass
 
-    def GetMomentList(self, year, month, day):
+    def GetMomentList(self, year, month):
     	moment_list = []
     	cur = self.dbconn.cursor()
     	try:
@@ -50,7 +50,7 @@ class DB:
     	                       GROUP BY m
     	                       ORDER BY imageDate
                                """, ('%s' % (year[0]),))
-    	    elif day is None:
+    	    else:
     	        cur.execute("""SELECT strftime('%d', imageDate+978307200, 'unixepoch', 'localtime') as d
     	                       FROM RKMaster
     	                       WHERE strftime('%Y-%m', imageDate+978307200, 'unixepoch', 'localtime') = ?
@@ -156,6 +156,7 @@ class DB:
     	                       FROM RKMaster m, RKVersion v
     	                       WHERE m.uuid = v.masterUuid
     	                       AND m.uuid = ?
+                               GROUP BY m.uuid
                                ORDER BY m.imageDate ASC""", (uuid,))
     	    elif action == 'people':
     	        cur.execute("""SELECT m.imageDate, m.imagePath, m.isMissing, v.modelId, v.latitude, v.longitude
@@ -164,6 +165,7 @@ class DB:
     	                       AND v.modelId = f.imageModelId
                                AND f.personId = p.modelId
                                AND p.uuid = ?
+                               GROUP BY m.uuid
                                ORDER BY m.imageDate ASC""", (uuid,))
     	    elif action == 'places':
     	        cur.execute("""SELECT m.imageDate, m.imagePath, m.isMissing, v.modelId, v.latitude, v.longitude
@@ -174,6 +176,7 @@ class DB:
                                AND v.longitude > p.minLongitude
                                AND v.longitude < p.maxLongitude
                                AND p.uuid = ?
+                               GROUP BY m.uuid
                                ORDER BY m.imageDate ASC""", (uuid,))
     	    elif action == 'search_by_year':
                 (year) = uuid
@@ -181,6 +184,7 @@ class DB:
     	                       FROM RKMaster m, RKVersion v
     	                       WHERE m.uuid = v.masterUuid
                                AND strftime('%Y', m.imageDate+978307200, 'unixepoch', 'localtime') = ?
+                               GROUP BY m.uuid
                                ORDER BY m.imageDate ASC""", ('%s' % (year),))
     	    elif action == 'search_by_month':
                 (year, month) = uuid
@@ -188,6 +192,7 @@ class DB:
     	                       FROM RKMaster m, RKVersion v
     	                       WHERE m.uuid = v.masterUuid
                                AND strftime('%Y-%m', m.imageDate+978307200, 'unixepoch', 'localtime') = ?
+                               GROUP BY m.uuid
                                ORDER BY m.imageDate ASC""", ('%s-%s' % (year, month),))
     	    elif action == 'search_by_day':
                 (year, month, day) = uuid
@@ -195,6 +200,7 @@ class DB:
     	                       FROM RKMaster m, RKVersion v
     	                       WHERE m.uuid = v.masterUuid
                                AND strftime('%Y-%m-%d', m.imageDate+978307200, 'unixepoch', 'localtime') = ?
+                               GROUP BY m.uuid
                                ORDER BY m.imageDate ASC""", ('%s-%s-%s' % (year, month, day),))
     	    elif action == 'search_by_timestamp':
                 (timestamp) = uuid
@@ -206,6 +212,7 @@ class DB:
     	                       WHERE m.uuid = v.masterUuid
                                AND m.imageDate >= ?
                                AND m.imageDate < ?
+                               GROUP BY m.uuid
                                ORDER BY m.imageDate ASC""", (t1, t2,))
     	    elif action == 'search_by_latlong':
                 (latitude, longitude) = uuid
@@ -214,6 +221,7 @@ class DB:
     	                       WHERE m.uuid = v.masterUuid
                                AND v.latitude != ""
                                AND v.longitude != ""
+                               GROUP BY m.uuid
                                ORDER BY abs(v.latitude - ?) + abs(v.longitude - ?) ASC LIMIT 100""", (latitude, longitude,))
     	    else:
     	        cur.execute("""SELECT m.imageDate, m.imagePath, m.isMissing, v.modelId, v.latitude, v.longitude
@@ -221,6 +229,7 @@ class DB:
     	                       WHERE m.uuid = v.masterUuid
                                AND v.Uuid = o.objectUuid
                                AND o.containerUuid = ?
+                               GROUP BY m.uuid
                                ORDER BY m.imageDate ASC""", (uuid,))
     	    for row in cur:
                 picture_list.append(row)
