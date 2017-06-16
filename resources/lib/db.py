@@ -204,16 +204,16 @@ class DB:
                                ORDER BY m.imageDate ASC""", ('%s-%s-%s' % (year, month, day),))
     	    elif action == 'search_by_timestamp':
                 (timestamp) = uuid
-                t = int(float(timestamp))
-                t1 = t - t % 86400
-                t2 = t1 + 86400
+            	cur1 = self.dbconn.cursor()
+                cur1.execute("""SELECT strftime('%Y-%m-%d', ? + 978307200, 'unixepoch', 'localtime')""", ('%d' % (int(float(timestamp))),))
+                (date) = cur1.fetchone()
+                cur1.close()
     	        cur.execute("""SELECT m.imageDate, m.imagePath, m.isMissing, v.modelId, v.latitude, v.longitude
     	                       FROM RKMaster m, RKVersion v
     	                       WHERE m.uuid = v.masterUuid
-                               AND m.imageDate >= ?
-                               AND m.imageDate < ?
+                               AND strftime('%Y-%m-%d', m.imageDate+978307200, 'unixepoch', 'localtime') = ?
                                GROUP BY m.uuid
-                               ORDER BY m.imageDate ASC""", (t1, t2,))
+                               ORDER BY m.imageDate ASC""", (date[0],))
     	    elif action == 'search_by_latlong':
                 (latitude, longitude) = uuid
     	        cur.execute("""SELECT m.imageDate, m.imagePath, m.isMissing, v.modelId, v.latitude, v.longitude
