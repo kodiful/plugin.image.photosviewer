@@ -10,9 +10,9 @@
 	  <platform>all</platform>
 	  <summary lang="en">Photos Viewer</summary>
 	  <summary lang="ja">写真ビューア</summary>
-	  <description lang="en">Shows pictures and videos of OSX Photos App</description>
-	  <description lang="ja">OSX写真アプリの静止画と動画を表示</description>
-    <disclaimer lang="en">Works on OSX</disclaimer>
-    <disclaimer lang="ja">OSXで動作</disclaimer>
+	  <description lang="en">Browse pictures and videos of macOS Photos App</description>
+	  <description lang="ja">macOS写真アプリの写真と動画をブラウズ</description>
+    <disclaimer lang="en">Works on macOS</disclaimer>
+    <disclaimer lang="ja">macOSで動作</disclaimer>
   </extension>
 </addon>
