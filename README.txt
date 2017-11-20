@@ -1,4 +1,4 @@
-macOSの写真アプリの静止画と動画を表示します。
+macOS写真アプリの写真と動画をブラウズします。
 
 以下を参考にしました。
 https://github.com/PhotoAppPlugin/plugin.image.photoapp
