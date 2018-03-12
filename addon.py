@@ -17,7 +17,6 @@ import xbmcvfs
 from resources.lib.common import *
 from resources.lib.db import *
 from resources.lib.map import *
-from resources.lib.holidays import *
 
 addon = xbmcaddon.Addon()
 
@@ -186,6 +185,9 @@ class App:
                 imagePath = os.path.join(self.photo_app_picture_path, smart_utf8(imagePath))
             else:
                 imagePath = thumbnailPath
+            # replace heic images with thumbnails
+            if imagePath.endswith('.HEIC') or imagePath.endswith('.heic'):
+                imagePath = thumbnailPath
             item = gui.ListItem(convert_timestamp(timestamp=imageDate), iconImage=thumbnailPath, thumbnailImage=thumbnailPath)
             contextmenu = []
             contextmenu.append((addon.getLocalizedString(30010), 'XBMC.Container.Update(%s)' % build_url({'action': 'search_by_timestamp', 'timestamp': imageDate})))
@@ -245,9 +247,9 @@ if __name__ == '__main__':
     action_result = None
     items = 0
 
-    log_notice('argv[0] = %s' % sys.argv[0])
-    log_notice('argv[1] = %s' % sys.argv[1])
-    log_notice('argv[2] = %s' % sys.argv[2])
+    log('argv[0] = %s' % sys.argv[0])
+    log('argv[1] = %s' % sys.argv[1])
+    log('argv[2] = %s' % sys.argv[2])
 
     action = args.get('action', None)
     folderUuid = args.get('folderUuid', None)
