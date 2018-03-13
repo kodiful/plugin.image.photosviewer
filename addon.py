@@ -17,6 +17,7 @@ import xbmcvfs
 from resources.lib.common import *
 from resources.lib.db import *
 from resources.lib.map import *
+from resources.lib.cache import *
 
 addon = xbmcaddon.Addon()
 
@@ -178,6 +179,7 @@ class App:
 
     def list_photos(self, uuid, action):
     	pictures = self.db.GetPictureList(uuid, action)
+        heic = addon.getSetting('heic')
     	n = 0
     	for (imageDate, imagePath, isMissing, modelId, latitude, longitude) in pictures:
             thumbnailPath = glob.glob(os.path.join(self.photo_app_thumbnail_path, ('%04x' % modelId)[0:2], '00', '%x' % modelId, '*.jpg'))[-1]
@@ -187,7 +189,10 @@ class App:
                 imagePath = thumbnailPath
             # replace heic images with thumbnails
             if imagePath.endswith('.HEIC') or imagePath.endswith('.heic'):
-                imagePath = thumbnailPath
+                if heic == '1':
+                    imagePath = Cache().convert(imagePath)
+                else:
+                    imagePath = thumbnailPath
             item = gui.ListItem(convert_timestamp(timestamp=imageDate), iconImage=thumbnailPath, thumbnailImage=thumbnailPath)
             contextmenu = []
             contextmenu.append((addon.getLocalizedString(30010), 'XBMC.Container.Update(%s)' % build_url({'action': 'search_by_timestamp', 'timestamp': imageDate})))
@@ -266,6 +271,7 @@ if __name__ == '__main__':
     app.open_db()
 
     if action is None:
+        Cache().clear()
         items = app.main_menu()
     elif not (uuid is None):
         items = app.list_photos(uuid[0], action[0])

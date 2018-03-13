@@ -24,8 +24,12 @@
   <string id="30031">{year}年{month}月{day}日({day7})</string>
   <string id="30032">{year}年{month}月</string>
   <string id="30033">{year}年</string>
+  <string id="30040">サムネイルで代替</string>
+  <string id="30041">sipsで変換</string>
   <string id="30100">該当なし</string>
   <string id="30200">設定</string>
-  <string id="30210">写真ライブラリへのパス</string>
-  <string id="30211">デバッグ</string>
+  <string id="30201">写真ライブラリへのパス</string>
+  <string id="30300">その他</string>
+  <string id="30301">HEIC画像の表示</string>
+  <string id="30302">デバッグ</string>
 </strings>

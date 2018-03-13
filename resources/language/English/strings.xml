@@ -24,8 +24,12 @@
   <string id="30031">{day7}, {day} {month} {year}</string>
   <string id="30032">{month} {year}</string>
   <string id="30033">{year}</string>
+  <string id="30040">Substitute</string>
+  <string id="30041">Convert</string>
   <string id="30100">No items</string>
   <string id="30200">Settings</string>
-  <string id="30210">Path to Photos Library</string>
-  <string id="30211">Debug</string>
+  <string id="30201">Path to Photos Library</string>
+  <string id="30300">Others</string>
+  <string id="30301">Display HEIC Images</string>
+  <string id="30302">Debug</string>
 </strings>
