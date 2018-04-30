@@ -15,19 +15,20 @@ import xbmc
 import xbmcaddon
 import xbmcvfs
 
+from const import Const
+
 class Map:
 
     def __init__(self):
         # ディレクトリ
-        addon = xbmcaddon.Addon()
-        self.path = os.path.join(xbmc.translatePath(addon.getAddonInfo('Profile')), 'cache', 'thumbnail')
+        self.path = os.path.join(Const.PROFILE_PATH, 'cache', 'thumbnail')
         if not os.path.isdir(self.path): os.makedirs(self.path)
         # DB
         self.db = os.path.join(xbmc.translatePath('special://database'), 'Textures13.db')
         # 言語
-        self.lang = addon.getLocalizedString(30020)
+        self.lang = Const.STR(30020)
         # 地域
-        self.region = addon.getLocalizedString(30021)
+        self.region = Const.STR(30021)
 
     def create(self, minLatLong, maxLatLong=None):
         # クエリ作成 https://developers.google.com/maps/documentation/static-maps/intro

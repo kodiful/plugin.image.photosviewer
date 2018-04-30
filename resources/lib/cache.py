@@ -5,12 +5,13 @@ import os
 import subprocess
 import hashlib
 
+from const import Const
+
 class Cache:
 
     def __init__(self):
         # ディレクトリ
-        addon = xbmcaddon.Addon()
-        self.path = os.path.join(xbmc.translatePath(addon.getAddonInfo('profile')), 'cache', 'heic2jpeg')
+        self.path = os.path.join(Const.PROFILE_PATH, 'cache', 'heic2jpeg')
         # ディレクトリが無ければ作成
         if not os.path.isdir(self.path):
             os.makedirs(self.path)
