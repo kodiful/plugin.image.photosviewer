@@ -22,7 +22,9 @@ class Cache:
             os.remove(os.path.join(self.path, filename))
 
     def convert(self, infile):
+        # 出力ファイル
         outfile = os.path.join(self.path, '%s.jpeg' % (hashlib.md5(infile).hexdigest()))
+        # 画像変換実行
         if not os.path.isfile(outfile):
             command = 'sips --setProperty format jpeg "{infile}" --out "{outfile}"'.format(infile=infile, outfile=outfile)
             subprocess.call(command, shell=True)

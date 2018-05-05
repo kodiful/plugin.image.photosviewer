@@ -20,16 +20,12 @@ from resources.lib.map import *
 from resources.lib.cache import *
 from resources.lib.const import Const
 
-base_url = sys.argv[0]
-addon_handle = int(sys.argv[1])
-args = urlparse.parse_qs(sys.argv[2][1:])
-
 def build_url(values):
     query = urllib.urlencode(values)
     if query:
-        url = '%s?%s' % (base_url,query)
+        url = '%s?%s' % (Const.BASE_URL,query)
     else:
-        url = base_url
+        url = Const.BASE_URL
     return url
 
 def convert_timestamp(year=None, month=None, day=None, hour=None, minute=None, timestamp=None):
@@ -62,12 +58,8 @@ def convert_timestamp(year=None, month=None, day=None, hour=None, minute=None, t
 class App:
 
     def __init__(self):
-        # パラメータ
-    	self.params = {}
-        qs = urlparse.parse_qs(urlparse.urlparse(sys.argv[2]).query, keep_blank_values=True)
-        for key in qs.keys():
-            self.params[key] = qs[key][0]
-
+        # ハンドル
+        self.handle = int(sys.argv[1])
         # 写真アプリのパス
         self.photo_app_path = Const.GET('photo_library_path')
         if self.photo_app_path == '':
@@ -97,12 +89,14 @@ class App:
             self.db = DB(self.photo_app_db_file)
     	except:
             pass
+        return self
 
     def close_db(self):
     	try:
     	    self.db.CloseDB()
     	except:
     	    pass
+        return self
 
     def list_moments(self, year, month):
     	n = 0
@@ -115,35 +109,42 @@ class App:
                 contextmenu.append((Const.STR(30012).format(period=convert_timestamp(year=name)), 'XBMC.Container.Update(%s)' % build_url({'action': 'search_by_year', 'year': name})))
                 item.addContextMenuItems(contextmenu, replaceItems=True)
     	    elif month is None:
-                url = build_url({'action': 'moments', 'year': year[0], 'month': name})
-                item = gui.ListItem(convert_timestamp(year=year[0],month=name), iconImage=Const.CALENDAR, thumbnailImage=Const.CALENDAR)
+                url = build_url({'action': 'moments', 'year': year, 'month': name})
+                item = gui.ListItem(convert_timestamp(year=year,month=name), iconImage=Const.CALENDAR, thumbnailImage=Const.CALENDAR)
                 contextmenu = []
-                contextmenu.append((Const.STR(30012).format(period=convert_timestamp(year=year[0],month=name)), 'XBMC.Container.Update(%s)' % build_url({'action': 'search_by_month', 'year': year[0], 'month': name})))
-                contextmenu.append((Const.STR(30012).format(period=convert_timestamp(year=year[0])), 'XBMC.Container.Update(%s)' % build_url({'action': 'search_by_year', 'year': year[0]})))
+                contextmenu.append((Const.STR(30012).format(period=convert_timestamp(year=year,month=name)), 'XBMC.Container.Update(%s)' % build_url({'action': 'search_by_month', 'year': year, 'month': name})))
+                contextmenu.append((Const.STR(30012).format(period=convert_timestamp(year=year)), 'XBMC.Container.Update(%s)' % build_url({'action': 'search_by_year', 'year': year})))
                 item.addContextMenuItems(contextmenu, replaceItems=True)
     	    else:
-                url = build_url({'action': 'search_by_day', 'year': year[0], 'month': month[0], 'day': name})
-                item = gui.ListItem(convert_timestamp(year=year[0],month=month[0],day=name), iconImage=Const.CALENDAR, thumbnailImage=Const.CALENDAR)
+                url = build_url({'action': 'search_by_day', 'year': year, 'month': month, 'day': name})
+                item = gui.ListItem(convert_timestamp(year=year,month=month,day=name), iconImage=Const.CALENDAR, thumbnailImage=Const.CALENDAR)
                 contextmenu = []
-                contextmenu.append((Const.STR(30012).format(period=convert_timestamp(year=year[0],month=month[0])), 'XBMC.Container.Update(%s)' % build_url({'action': 'search_by_month', 'year': year[0], 'month': month[0]})))
-                contextmenu.append((Const.STR(30012).format(period=convert_timestamp(year=year[0])), 'XBMC.Container.Update(%s)' % build_url({'action': 'search_by_year', 'year': year[0]})))
+                contextmenu.append((Const.STR(30012).format(period=convert_timestamp(year=year,month=month)), 'XBMC.Container.Update(%s)' % build_url({'action': 'search_by_month', 'year': year, 'month': month})))
+                contextmenu.append((Const.STR(30012).format(period=convert_timestamp(year=year)), 'XBMC.Container.Update(%s)' % build_url({'action': 'search_by_year', 'year': year})))
                 item.addContextMenuItems(contextmenu, replaceItems=True)
-    	    plugin.addDirectoryItem(addon_handle, url, item, True)
+    	    plugin.addDirectoryItem(self.handle, url, item, True)
     	    n += 1
     	return n
 
-    def list_places(self):
-    	n = 0
+    def list_places(self, parent=None):
+        n = 0
         map = Map()
-    	places = self.db.GetPlaceList()
-    	for (name, uuid, minLatitude, maxLatitude, minLongitude, maxLongitude) in places:
-            url = build_url({'action': 'places', 'uuid': uuid})
+    	places = self.db.GetPlaceList(parent)
+    	for (name, uuid, type, modelId, minLatitude, maxLatitude, minLongitude, maxLongitude) in places:
             try:
                 thumbnail = map.create((minLatitude, minLongitude), (maxLatitude, maxLongitude))
             except:
                 thumbnail = Const.MARKER
-            item = gui.ListItem(name, iconImage=thumbnail, thumbnailImage=thumbnail)
-    	    plugin.addDirectoryItem(addon_handle, url, item, True)
+            if int(type) > 16:
+                url = build_url({'action':'places', 'uuid':uuid})
+                item = gui.ListItem(name, iconImage=thumbnail, thumbnailImage=thumbnail)
+            else:
+                url = build_url({'action':'places', 'name':smart_utf8(name), 'uuid': uuid, 'type':type, 'modelId':modelId})
+                item = gui.ListItem(name, iconImage=thumbnail, thumbnailImage=thumbnail)
+                contextmenu = []
+                contextmenu.append((Const.STR(30013).format(place=smart_unicode(name)), 'XBMC.Container.Update(%s)' % build_url({'action':'places', 'uuid':uuid})))
+                item.addContextMenuItems(contextmenu, replaceItems=True)
+    	    plugin.addDirectoryItem(self.handle, url, item, True)
     	    n += 1
     	return n
 
@@ -154,7 +155,7 @@ class App:
             url = build_url({'action': 'people', 'uuid': uuid})
             imagePath = glob.glob(os.path.join(self.photo_app_face_path, ('%04x' % modelId)[0:2], '00', 'facetile_%x.jpeg' % modelId))[-1]
             item = gui.ListItem(name, iconImage=imagePath, thumbnailImage=imagePath)
-    	    plugin.addDirectoryItem(addon_handle, url, item, True)
+    	    plugin.addDirectoryItem(self.handle, url, item, True)
     	    n += 1
     	return n
 
@@ -165,14 +166,14 @@ class App:
             url = build_url({'action': 'albums', 'folderUuid': uuid})
             thumbnailPath = Const.PHOTO_GALLERY
             item = gui.ListItem(name, iconImage=thumbnailPath, thumbnailImage=thumbnailPath)
-    	    plugin.addDirectoryItem(addon_handle, url, item, True)
+    	    plugin.addDirectoryItem(self.handle, url, item, True)
     	    n += 1
     	albums = self.db.GetAlbumList(folderUuid)
     	for (name, uuid, modelId) in albums:
             url = build_url({'action': 'albums', 'uuid': uuid})
             thumbnailPath = glob.glob(os.path.join(self.photo_app_thumbnail_path, ('%04x' % modelId)[0:2], '00', '%x' % modelId, '*.jpg'))[-1]
             item = gui.ListItem(name, iconImage=thumbnailPath, thumbnailImage=thumbnailPath)
-    	    plugin.addDirectoryItem(addon_handle, url, item, True)
+    	    plugin.addDirectoryItem(self.handle, url, item, True)
     	    n += 1
     	return n
 
@@ -180,7 +181,7 @@ class App:
     	pictures = self.db.GetPictureList(uuid, action)
         heic = Const.GET('heic')
     	n = 0
-    	for (imageDate, imagePath, isMissing, modelId, latitude, longitude) in pictures:
+    	for (imageDate, imagePath, isMissing, modelId, latitude, longitude, orientation) in pictures:
             thumbnailPath = glob.glob(os.path.join(self.photo_app_thumbnail_path, ('%04x' % modelId)[0:2], '00', '%x' % modelId, '*.jpg'))[-1]
             if isMissing == 0:
                 imagePath = os.path.join(self.photo_app_picture_path, smart_utf8(imagePath))
@@ -199,7 +200,7 @@ class App:
                 contextmenu.append((Const.STR(30011), 'XBMC.Container.Update(%s)' % build_url({'action': 'search_by_latlong', 'latitude': latitude, 'longitude': longitude})))
             contextmenu.append((Const.STR(30014), 'XBMC.Container.Update(%s,replace)' % build_url({})))
             item.addContextMenuItems(contextmenu, replaceItems=True)
-    	    plugin.addDirectoryItem(addon_handle, imagePath, item, False)
+    	    plugin.addDirectoryItem(self.handle, imagePath, item, False)
     	    n += 1
     	return n
 
@@ -219,41 +220,37 @@ class App:
                 contextmenu.append((Const.STR(30011), 'XBMC.Container.Update(%s)' % build_url({'action': 'search_by_latlong', 'latitude': latitude, 'longitude': longitude})))
             contextmenu.append((Const.STR(30014), 'XBMC.Container.Update(%s,replace)' % build_url({})))
             item.addContextMenuItems(contextmenu, replaceItems=True)
-    	    plugin.addDirectoryItem(addon_handle, imagePath, item, False)
+    	    plugin.addDirectoryItem(self.handle, imagePath, item, False)
     	    n += 1
     	return n
 
     def main_menu(self):
         url = build_url({'action': 'moments'})
         item = gui.ListItem(Const.STR(30001), iconImage=Const.PICTURE, thumbnailImage=Const.PICTURE)
-    	plugin.addDirectoryItem(addon_handle, url, item, True)
+    	plugin.addDirectoryItem(self.handle, url, item, True)
 
         url = build_url({'action': 'people'})
         item = gui.ListItem(Const.STR(30003), iconImage=Const.PEOPLE, thumbnailImage=Const.PEOPLE)
-    	plugin.addDirectoryItem(addon_handle, url, item, True)
+    	plugin.addDirectoryItem(self.handle, url, item, True)
 
         url = build_url({'action': 'places'})
         item = gui.ListItem(Const.STR(30002), iconImage=Const.MARKER, thumbnailImage=Const.MARKER)
-    	plugin.addDirectoryItem(addon_handle, url, item, True)
+    	plugin.addDirectoryItem(self.handle, url, item, True)
 
         url = build_url({'action': 'videos'})
         item = gui.ListItem(Const.STR(30005), iconImage=Const.MOVIE, thumbnailImage=Const.MOVIE)
-    	plugin.addDirectoryItem(addon_handle, url, item, True)
+    	plugin.addDirectoryItem(self.handle, url, item, True)
 
         url = build_url({'action': 'albums', 'folderUuid': 'TopLevelAlbums'})
         item = gui.ListItem(Const.STR(30004), iconImage=Const.PHOTO_GALLERY, thumbnailImage=Const.PHOTO_GALLERY)
-    	plugin.addDirectoryItem(addon_handle, url, item, True)
+    	plugin.addDirectoryItem(self.handle, url, item, True)
 
     	return 4
 
 if __name__ == '__main__':
 
-    action_result = None
-    items = 0
-
-    log('argv[0] = %s' % sys.argv[0])
-    log('argv[1] = %s' % sys.argv[1])
-    log('argv[2] = %s' % sys.argv[2])
+    args = urlparse.parse_qs(sys.argv[2][1:])
+    for key in args.keys(): args[key] = args[key][0]
 
     action = args.get('action', None)
     folderUuid = args.get('folderUuid', None)
@@ -266,47 +263,47 @@ if __name__ == '__main__':
     latitude = args.get('latitude', None)
     longitude = args.get('longitude', None)
 
-    app = App()
-    app.open_db()
+    name = args.get('name', None)
+    type = args.get('type', None)
+    modelId = args.get('modelId', None)
+
+    app = App().open_db()
 
     if action is None:
         Cache().clear()
         items = app.main_menu()
-    elif not (uuid is None):
-        items = app.list_photos(uuid[0], action[0])
-    elif action[0] == 'moments':
+    elif uuid is not None:
+        if type:
+            items = app.list_places((name, uuid, int(type), int(modelId)))
+        else:
+            items = app.list_photos(uuid, action)
+    elif action == 'moments':
         items = app.list_moments(year, month)
-    elif action[0] == 'people':
+    elif action == 'people':
         items = app.list_people()
-    elif action[0] == 'places':
+    elif action == 'places':
         items = app.list_places()
-    elif action[0] == 'videos':
+    elif action == 'videos':
         items = app.list_videos()
-    elif action[0] == 'albums':
-        items = app.list_albums(folderUuid[0])
+    elif action == 'albums':
+        items = app.list_albums(folderUuid)
 
-    elif action[0] == 'search_by_year':
-        items = app.list_photos((year[0]), action[0])
-        mode = 'thumbnail'
-    elif action[0] == 'search_by_month':
-        items = app.list_photos((year[0], month[0]), action[0])
-        mode = 'thumbnail'
-    elif action[0] == 'search_by_day':
-        items = app.list_photos((year[0], month[0], day[0]), action[0])
-        mode = 'thumbnail'
-    elif action[0] == 'search_by_timestamp':
-        items = app.list_photos((timestamp[0]), action[0])
-        mode = 'thumbnail'
-    elif action[0] == 'search_by_latlong':
-        items = app.list_photos((latitude[0], longitude[0]), action[0])
-        mode = 'thumbnail'
+    elif action == 'search_by_year':
+        items = app.list_photos((year), action)
+    elif action == 'search_by_month':
+        items = app.list_photos((year, month), action)
+    elif action == 'search_by_day':
+        items = app.list_photos((year, month, day), action)
+    elif action == 'search_by_timestamp':
+        items = app.list_photos((timestamp), action)
+    elif action == 'search_by_latlong':
+        items = app.list_photos((latitude, longitude), action)
+    else:
+        items = 0
 
     app.close_db()
 
     if items == 0:
-        action_result = Const.STR(30100)
+        notify(Const.STR(30100))
     else:
-        plugin.endOfDirectory(addon_handle, True)
-
-	xbmc.sleep(300)
-    if action_result: notify(action_result)
+        plugin.endOfDirectory(int(sys.argv[1]), True)

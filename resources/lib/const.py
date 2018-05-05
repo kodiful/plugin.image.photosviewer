@@ -8,6 +8,7 @@ class Const:
     # ガラポンTVクライアント
     ADDON = xbmcaddon.Addon()
     ADDON_ID = ADDON.getAddonInfo('id')
+    BASE_URL = 'plugin://%s' % ADDON_ID
 
     STR = ADDON.getLocalizedString
     GET = ADDON.getSetting

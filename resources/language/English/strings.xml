@@ -15,6 +15,7 @@
   <string id="30010">Search photos of the day</string>
   <string id="30011">Search photos of the place</string>
   <string id="30012">Search photos of {priod}</string>
+  <string id="30013">Search photos of {place}</string>
   <string id="30014">Return to top</string>
   <string id="30017">Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec</string>
   <string id="30018">Mon,Tue,Wed,Thu,Fri,Sat,Sun</string>

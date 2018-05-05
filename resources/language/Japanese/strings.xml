@@ -15,6 +15,7 @@
   <string id="30010">同じ撮影日の写真を検索</string>
   <string id="30011">近くの撮影地の写真を検索</string>
   <string id="30012">{period}の写真を検索</string>
+  <string id="30013">{place}の写真を検索</string>
   <string id="30014">トップに戻る</string>
   <string id="30017">01,02,03,04,05,06,07,08,09,10,11,12</string>
   <string id="30018">月,火,水,木,金,土,日</string>

@@ -3,7 +3,8 @@
 import os, inspect
 import xbmc, xbmcaddon
 
-def notify(message, **options):
+def notify(*messages, **options):
+    log(messages, error=options.get('error', False))
     time = options.get('time', 10000)
     image = options.get('image', None)
     if image is None:
@@ -11,8 +12,15 @@ def notify(message, **options):
             image = 'DefaultIconError.png'
         else:
             image = 'DefaultIconInfo.png'
-    log(message, error=options.get('error', False))
-    xbmc.executebuiltin('Notification("%s","%s",%d,"%s")' % (xbmcaddon.Addon().getAddonInfo('name'),message,time,image))
+    m = []
+    for message in messages:
+        if isinstance(message, str):
+            m.append(message)
+        elif isinstance(message, unicode):
+            m.append(message.encode('utf-8'))
+        else:
+            m.append(str(message))
+    xbmc.executebuiltin('Notification("%s","%s",%d,"%s")' % (xbmcaddon.Addon().getAddonInfo('name'),str(' ').join(m),time,image))
 
 def log(*messages, **options):
     addon = xbmcaddon.Addon()
