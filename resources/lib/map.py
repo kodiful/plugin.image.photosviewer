@@ -47,7 +47,7 @@ class Map:
         # ファイル名
         imagefile = os.path.join(self.path, '%s.png' % coordinates)
         # キャッシュクリア
-        if os.path.isfile(imagefile) and os.path.getsize(imagefile) < 1000:
+        if os.path.isfile(imagefile) and os.path.getsize(imagefile) < 12000:
             try:
                 # delete imagefile
                 os.remove(imagefile)
