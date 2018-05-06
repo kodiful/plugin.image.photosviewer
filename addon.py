@@ -272,9 +272,10 @@ if __name__ == '__main__':
     if action is None:
         Cache().clear()
         items = app.main_menu()
-    elif uuid is not None:
+    elif uuid:
         if type:
             items = app.list_places((name, uuid, int(type), int(modelId)))
+            if items == 0: items = app.list_photos(uuid, action)
         else:
             items = app.list_photos(uuid, action)
     elif action == 'moments':
