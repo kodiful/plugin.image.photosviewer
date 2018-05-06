@@ -70,16 +70,17 @@ class DB:
             else:
                 (name, uuid, type, modelId) = parent
                 if type == 1:
-                    maxtype = 2
+                    to = 2
                 elif type == 2:
-                    maxtype = 16
+                    type = 4
+                    to = 16
                 else:
-                    maxtype = 100
+                    to = 100
                 cur.execute("""SELECT DISTINCT(pv.placeId), p.defaultName, p.uuid, p.type, p.modelId, p.minLatitude, p.maxLatitude, p.minLongitude, p.maxLongitude FROM RKPlaceForVersion pv, RKPlace p
                                WHERE pv.versionId IN (SELECT versionId FROM RKPlaceForVersion WHERE placeId=?)
                                AND p.modelId = pv.placeId
                                AND p.type > ? AND p.type <= ?
-                               ORDER BY p.minLatitude+p.maxLatitude+p.minLatitude+p.maxLongitude DESC""", (modelId, type, maxtype,))
+                               ORDER BY p.minLatitude+p.maxLatitude+p.minLatitude+p.maxLongitude DESC""", (modelId, type, to,))
                 for row in cur:
                     place_list.append(row[1:])
     	except Exception, e:
