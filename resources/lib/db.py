@@ -64,9 +64,7 @@ class DB:
             if parent is None:
                 cur.execute("""SELECT defaultName, uuid, type, modelId, minLatitude, maxLatitude, minLongitude, maxLongitude FROM RKPlace
                                WHERE type = 1
-        	                   ORDER BY type, defaultName ASC""")
-                for row in cur:
-                    place_list.append(row)
+        	                   ORDER BY defaultName ASC""")
             else:
                 (name, uuid, type, modelId) = parent
                 if type == 1:
@@ -76,13 +74,13 @@ class DB:
                     to = 16
                 else:
                     to = 100
-                cur.execute("""SELECT DISTINCT(pv.placeId), p.defaultName, p.uuid, p.type, p.modelId, p.minLatitude, p.maxLatitude, p.minLongitude, p.maxLongitude FROM RKPlaceForVersion pv, RKPlace p
+                cur.execute("""SELECT DISTINCT p.defaultName, p.uuid, p.type, p.modelId, p.minLatitude, p.maxLatitude, p.minLongitude, p.maxLongitude FROM RKPlaceForVersion pv, RKPlace p
                                WHERE pv.versionId IN (SELECT versionId FROM RKPlaceForVersion WHERE placeId=?)
                                AND p.modelId = pv.placeId
                                AND p.type > ? AND p.type <= ?
                                ORDER BY p.minLatitude+p.maxLatitude+p.minLatitude+p.maxLongitude DESC""", (modelId, type, to,))
-                for row in cur:
-                    place_list.append(row[1:])
+            for row in cur:
+                place_list.append(row)
     	except Exception, e:
     	    log("db error:" + smart_utf8(e), error=True)
     	cur.close()
