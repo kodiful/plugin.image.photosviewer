@@ -189,10 +189,14 @@ class App:
                 imagePath = thumbnailPath
             # replace heic images with thumbnails
             if imagePath.endswith('.HEIC') or imagePath.endswith('.heic'):
-                if heic == '1':
+                if heic == '0':
+                    # サムネイルで代替
+                    imagePath = thumbnailPath
+                elif heic == '1':
+                    # JPEGに変換
                     imagePath = Cache().convert(imagePath)
                 else:
-                    imagePath = thumbnailPath
+                    pass
             item = gui.ListItem(convert_timestamp(timestamp=imageDate), iconImage=thumbnailPath, thumbnailImage=thumbnailPath)
             contextmenu = []
             contextmenu.append((Const.STR(30010), 'XBMC.Container.Update(%s)' % build_url({'action': 'search_by_timestamp', 'timestamp': imageDate})))
