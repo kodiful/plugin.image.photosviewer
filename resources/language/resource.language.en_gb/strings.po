@@ -1,0 +1,130 @@
+# Kodi Media Center language file
+# Addon Name: Photos Viewer
+# Addon id: plugin.image.photosviewer
+# Addon Provider: kodiful
+msgid ""
+msgstr ""
+"Project-Id-Version: Kodi Addons\n"
+"Report-Msgid-Bugs-To: https://forum.kodi.tv/\n"
+"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Kodi Translation Team\n"
+"Language-Team: Team-Kodi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en_GB\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgctxt "#30000"
+msgid "Photos Library.photoslibrary"
+msgstr ""
+
+msgctxt "#30001"
+msgid "Moments"
+msgstr ""
+
+msgctxt "#30002"
+msgid "Places"
+msgstr ""
+
+msgctxt "#30003"
+msgid "People"
+msgstr ""
+
+msgctxt "#30004"
+msgid "Albums"
+msgstr ""
+
+msgctxt "#30005"
+msgid "Video"
+msgstr ""
+
+msgctxt "#30010"
+msgid "Search photos of the day"
+msgstr ""
+
+msgctxt "#30011"
+msgid "Search photos of the place"
+msgstr ""
+
+msgctxt "#30012"
+msgid "Search photos of {priod}"
+msgstr ""
+
+msgctxt "#30013"
+msgid "Search photos of {place}"
+msgstr ""
+
+msgctxt "#30014"
+msgid "Return to top"
+msgstr ""
+
+msgctxt "#30017"
+msgid "Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec"
+msgstr ""
+
+msgctxt "#30018"
+msgid "Mon,Tue,Wed,Thu,Fri,Sat,Sun"
+msgstr ""
+
+msgctxt "#30020"
+msgid "en"
+msgstr ""
+
+msgctxt "#30021"
+msgid "US"
+msgstr ""
+
+msgctxt "#30030"
+msgid "{day7}, {day} {month} {year} {hour}:{minute}"
+msgstr ""
+
+msgctxt "#30031"
+msgid "{day7}, {day} {month} {year}"
+msgstr ""
+
+msgctxt "#30032"
+msgid "{month} {year}"
+msgstr ""
+
+msgctxt "#30033"
+msgid "{year}"
+msgstr ""
+
+msgctxt "#30040"
+msgid "Substitute"
+msgstr ""
+
+msgctxt "#30041"
+msgid "Convert"
+msgstr ""
+
+msgctxt "#30042"
+msgid "None"
+msgstr ""
+
+msgctxt "#30100"
+msgid "No items"
+msgstr ""
+
+msgctxt "#30200"
+msgid "Settings"
+msgstr ""
+
+msgctxt "#30201"
+msgid "Path to Photos Library"
+msgstr ""
+
+msgctxt "#30300"
+msgid "Others"
+msgstr ""
+
+msgctxt "#30301"
+msgid "Display HEIC Images"
+msgstr ""
+
+msgctxt "#30302"
+msgid "Debug"
+msgstr ""
+

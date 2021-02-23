@@ -1,0 +1,130 @@
+# Kodi Media Center language file
+# Addon Name: Photos Viewer
+# Addon id: plugin.image.photosviewer
+# Addon Provider: kodiful
+msgid ""
+msgstr ""
+"Project-Id-Version: Kodi Addons\n"
+"Report-Msgid-Bugs-To: https://forum.kodi.tv/\n"
+"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Kodi Translation Team\n"
+"Language-Team: Team-Kodi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ja_JP\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgctxt "#30000"
+msgid "Photos Library.photoslibrary"
+msgstr "写真ライブラリ.photoslibrary"
+
+msgctxt "#30001"
+msgid "Moments"
+msgstr "写真"
+
+msgctxt "#30002"
+msgid "Places"
+msgstr "撮影地"
+
+msgctxt "#30003"
+msgid "People"
+msgstr "ピープル"
+
+msgctxt "#30004"
+msgid "Albums"
+msgstr "アルバム"
+
+msgctxt "#30005"
+msgid "Video"
+msgstr "ビデオ"
+
+msgctxt "#30010"
+msgid "Search photos of the day"
+msgstr "同じ撮影日の写真を検索"
+
+msgctxt "#30011"
+msgid "Search photos of the place"
+msgstr "近くの撮影地の写真を検索"
+
+msgctxt "#30012"
+msgid "Search photos of {priod}"
+msgstr "{period}の写真を検索"
+
+msgctxt "#30013"
+msgid "Search photos of {place}"
+msgstr "{place}の写真を検索"
+
+msgctxt "#30014"
+msgid "Return to top"
+msgstr "トップに戻る"
+
+msgctxt "#30017"
+msgid "Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec"
+msgstr "01,02,03,04,05,06,07,08,09,10,11,12"
+
+msgctxt "#30018"
+msgid "Mon,Tue,Wed,Thu,Fri,Sat,Sun"
+msgstr "月,火,水,木,金,土,日"
+
+msgctxt "#30020"
+msgid "en"
+msgstr "ja"
+
+msgctxt "#30021"
+msgid "US"
+msgstr "JP"
+
+msgctxt "#30030"
+msgid "{day7}, {day} {month} {year} {hour}:{minute}"
+msgstr "{year}年{month}月{day}日({day7}) {hour}時{minute}分"
+
+msgctxt "#30031"
+msgid "{day7}, {day} {month} {year}"
+msgstr "{year}年{month}月{day}日({day7})"
+
+msgctxt "#30032"
+msgid "{month} {year}"
+msgstr "{year}年{month}月"
+
+msgctxt "#30033"
+msgid "{year}"
+msgstr "{year}年"
+
+msgctxt "#30040"
+msgid "Substitute"
+msgstr "サムネイルで代替"
+
+msgctxt "#30041"
+msgid "Convert"
+msgstr "JPEGに変換"
+
+msgctxt "#30042"
+msgid "None"
+msgstr "変換しない"
+
+msgctxt "#30100"
+msgid "No items"
+msgstr "該当なし"
+
+msgctxt "#30200"
+msgid "Settings"
+msgstr "設定"
+
+msgctxt "#30201"
+msgid "Path to Photos Library"
+msgstr "写真ライブラリへのパス"
+
+msgctxt "#30300"
+msgid "Others"
+msgstr "その他"
+
+msgctxt "#30301"
+msgid "Display HEIC Images"
+msgstr "HEIC画像の表示"
+
+msgctxt "#30302"
+msgid "Debug"
+msgstr "デバッグ"
+
