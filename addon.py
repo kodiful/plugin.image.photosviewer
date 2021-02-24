@@ -79,7 +79,7 @@ class App:
             pass
         else:
             xbmcvfs.copy(self.photo_app_db_orig, self.photo_app_db_file)
-            #os.utime(self.photo_app_db_file, (ctime, mtime))
+            os.utime(self.photo_app_db_file, (ctime, mtime))
         # ファイルのパス
         self.photo_app_picture_path = os.path.join(self.photo_app_path, 'Masters')
         self.photo_app_thumbnail_path = os.path.join(self.photo_app_path, 'resources', 'proxies', 'derivatives')
