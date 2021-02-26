@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import sys
-import time
 import os
 import glob
 import datetime
@@ -9,25 +8,24 @@ import datetime
 from urllib.parse import parse_qs
 from urllib.parse import urlencode
 
-import xbmc
 import xbmcgui
 import xbmcplugin
-import xbmcaddon
 import xbmcvfs
 
-from resources.lib.common import *
-from resources.lib.db import *
-from resources.lib.map import *
-from resources.lib.cache import *
-from resources.lib.const import *
+from resources.lib.common import notify
+from resources.lib.common import isholiday
+from resources.lib.db import DB
+from resources.lib.map import Map
+from resources.lib.cache import Cache
+from resources.lib.const import Const
 
 
 def build_url(values):
     query = urlencode(values)
     if query:
-        url = '%s?%s' % (Const.BASE_URL, query)
+        url = '%s?%s' % (Const.ADDON_URL, query)
     else:
-        url = Const.BASE_URL
+        url = Const.ADDON_URL
     return url
 
 
@@ -110,14 +108,14 @@ class App:
             if year is None:
                 url = build_url({'action': 'moments', 'year': name})
                 item = xbmcgui.ListItem(convert_timestamp(year=name))
-                item.setArt({'icon': Const.CALENDAR, 'thumbnail': Const.CALENDAR})
+                item.setArt({'icon': Const.CALENDAR, 'thumb': Const.CALENDAR})
                 contextmenu = []
                 contextmenu.append((Const.STR(30012).format(period=convert_timestamp(year=name)), 'Container.Update(%s)' % build_url({'action': 'search_by_year', 'year': name})))
                 item.addContextMenuItems(contextmenu, replaceItems=True)
             elif month is None:
                 url = build_url({'action': 'moments', 'year': year, 'month': name})
                 item = xbmcgui.ListItem(convert_timestamp(year=year, month=name))
-                item.setArt({'icon': Const.CALENDAR, 'thumbnail': Const.CALENDAR})
+                item.setArt({'icon': Const.CALENDAR, 'thumb': Const.CALENDAR})
                 contextmenu = []
                 contextmenu.append((Const.STR(30012).format(period=convert_timestamp(year=year, month=name)), 'Container.Update(%s)' % build_url({'action': 'search_by_month', 'year': year, 'month': name})))
                 contextmenu.append((Const.STR(30012).format(period=convert_timestamp(year=year)), 'Container.Update(%s)' % build_url({'action': 'search_by_year', 'year': year})))
@@ -125,7 +123,7 @@ class App:
             else:
                 url = build_url({'action': 'search_by_day', 'year': year, 'month': month, 'day': name})
                 item = xbmcgui.ListItem(convert_timestamp(year=year, month=month, day=name))
-                item.setArt({'icon': Const.CALENDAR, 'thumbnail': Const.CALENDAR})
+                item.setArt({'icon': Const.CALENDAR, 'thumb': Const.CALENDAR})
                 contextmenu = []
                 contextmenu.append((Const.STR(30012).format(period=convert_timestamp(year=year, month=month)), 'Container.Update(%s)' % build_url({'action': 'search_by_month', 'year': year, 'month': month})))
                 contextmenu.append((Const.STR(30012).format(period=convert_timestamp(year=year)), 'Container.Update(%s)' % build_url({'action': 'search_by_year', 'year': year})))
@@ -146,13 +144,13 @@ class App:
             if int(type) > 16:
                 url = build_url({'action': 'places', 'uuid': uuid})
                 item = xbmcgui.ListItem(name)
-                item.setArt({'icon': thumbnail, 'thumbnail': thumbnail})
+                item.setArt({'icon': thumbnail, 'thumb': thumbnail})
             else:
-                url = build_url({'action': 'places', 'name': smart_utf8(name), 'uuid': uuid, 'type': type, 'modelId': modelId})
+                url = build_url({'action': 'places', 'name': name, 'uuid': uuid, 'type': type, 'modelId': modelId})
                 item = xbmcgui.ListItem(name)
-                item.setArt({'icon': thumbnail, 'thumbnail': thumbnail})
+                item.setArt({'icon': thumbnail, 'thumb': thumbnail})
                 contextmenu = []
-                contextmenu.append((Const.STR(30013).format(place=smart_unicode(name)), 'Container.Update(%s)' % build_url({'action': 'places', 'uuid': uuid})))
+                contextmenu.append((Const.STR(30013).format(place=name), 'Container.Update(%s)' % build_url({'action': 'places', 'uuid': uuid})))
                 item.addContextMenuItems(contextmenu, replaceItems=True)
             xbmcplugin.addDirectoryItem(self.handle, url, item, True)
             n += 1
@@ -165,7 +163,7 @@ class App:
             url = build_url({'action': 'people', 'uuid': uuid})
             imagePath = glob.glob(os.path.join(self.photo_app_face_path, ('%04x' % modelId)[0:2], '00', 'facetile_%x.jpeg' % modelId))[-1]
             item = xbmcgui.ListItem(name)
-            item.setArt({'icon': imagePath, 'thumbnail': imagePath})
+            item.setArt({'icon': imagePath, 'thumb': imagePath})
             xbmcplugin.addDirectoryItem(self.handle, url, item, True)
             n += 1
         return n
@@ -177,7 +175,7 @@ class App:
             url = build_url({'action': 'albums', 'folderUuid': uuid})
             thumbnailPath = Const.PHOTO_GALLERY
             item = xbmcgui.ListItem(name)
-            item.setArt({'icon': thumbnailPath, 'thumbnail': thumbnailPath})
+            item.setArt({'icon': thumbnailPath, 'thumb': thumbnailPath})
             xbmcplugin.addDirectoryItem(self.handle, url, item, True)
             n += 1
         albums = self.db.GetAlbumList(folderUuid)
@@ -185,7 +183,7 @@ class App:
             url = build_url({'action': 'albums', 'uuid': uuid})
             thumbnailPath = glob.glob(os.path.join(self.photo_app_thumbnail_path, ('%04x' % modelId)[0:2], '00', '%x' % modelId, '*.jpg'))[-1]
             item = xbmcgui.ListItem(name)
-            item.setArt({'icon': thumbnailPath, 'thumbnail': thumbnailPath})
+            item.setArt({'icon': thumbnailPath, 'thumb': thumbnailPath})
             xbmcplugin.addDirectoryItem(self.handle, url, item, True)
             n += 1
         return n
@@ -197,7 +195,7 @@ class App:
         for (imageDate, imagePath, isMissing, modelId, latitude, longitude, orientation) in pictures:
             thumbnailPath = glob.glob(os.path.join(self.photo_app_thumbnail_path, ('%04x' % modelId)[0:2], '00', '%x' % modelId, '*.jpg'))[-1]
             if isMissing == 0:
-                imagePath = os.path.join(self.photo_app_picture_path, smart_utf8(imagePath))
+                imagePath = os.path.join(self.photo_app_picture_path, imagePath)
             else:
                 imagePath = thumbnailPath
             # replace heic images with thumbnails
@@ -211,7 +209,7 @@ class App:
                 else:
                     pass
             item = xbmcgui.ListItem(convert_timestamp(timestamp=imageDate))
-            item.setArt({'icon': thumbnailPath, 'thumbnail': thumbnailPath})
+            item.setArt({'icon': thumbnailPath, 'thumb': thumbnailPath})
             contextmenu = []
             contextmenu.append((Const.STR(30010), 'Container.Update(%s)' % build_url({'action': 'search_by_timestamp', 'timestamp': imageDate})))
             if latitude and longitude:
@@ -228,11 +226,11 @@ class App:
         for (imageDate, imagePath, isMissing, modelId, latitude, longitude) in videos:
             thumbnailPath = glob.glob(os.path.join(self.photo_app_thumbnail_path, ('%04x' % modelId)[0:2], '00', '%x' % modelId, '*.jpg'))[-1]
             if isMissing == 0:
-                imagePath = os.path.join(self.photo_app_picture_path, smart_utf8(imagePath))
+                imagePath = os.path.join(self.photo_app_picture_path, imagePath)
             else:
                 imagePath = thumbnailPath
             item = xbmcgui.ListItem(convert_timestamp(timestamp=imageDate))
-            item.setArt({'icon': thumbnailPath, 'thumbnail': thumbnailPath})
+            item.setArt({'icon': thumbnailPath, 'thumb': thumbnailPath})
             contextmenu = []
             contextmenu.append((Const.STR(30010), 'Container.Update(%s)' % build_url({'action': 'search_by_timestamp', 'timestamp': imageDate})))
             if latitude and longitude:
@@ -246,27 +244,27 @@ class App:
     def main_menu(self):
         url = build_url({'action': 'moments'})
         item = xbmcgui.ListItem(Const.STR(30001))
-        item.setArt({'icon': Const.PICTURE, 'thumbnail': Const.PICTURE})
+        item.setArt({'icon': Const.PICTURE, 'thumb': Const.PICTURE})
         xbmcplugin.addDirectoryItem(self.handle, url, item, True)
 
         url = build_url({'action': 'people'})
         item = xbmcgui.ListItem(Const.STR(30003))
-        item.setArt({'icon': Const.PEOPLE, 'thumbnail': Const.PEOPLE})
+        item.setArt({'icon': Const.PEOPLE, 'thumb': Const.PEOPLE})
         xbmcplugin.addDirectoryItem(self.handle, url, item, True)
 
         url = build_url({'action': 'places'})
         item = xbmcgui.ListItem(Const.STR(30002))
-        item.setArt({'icon': Const.MARKER, 'thumbnail': Const.MARKER})
+        item.setArt({'icon': Const.MARKER, 'thumb': Const.MARKER})
         xbmcplugin.addDirectoryItem(self.handle, url, item, True)
 
         url = build_url({'action': 'videos'})
         item = xbmcgui.ListItem(Const.STR(30005))
-        item.setArt({'icon': Const.MOVIE, 'thumbnail': Const.MOVIE})
+        item.setArt({'icon': Const.MOVIE, 'thumb': Const.MOVIE})
         xbmcplugin.addDirectoryItem(self.handle, url, item, True)
 
         url = build_url({'action': 'albums', 'folderUuid': 'TopLevelAlbums'})
         item = xbmcgui.ListItem(Const.STR(30004))
-        item.setArt({'icon': Const.PHOTO_GALLERY, 'thumbnail': Const.PHOTO_GALLERY})
+        item.setArt({'icon': Const.PHOTO_GALLERY, 'thumb': Const.PHOTO_GALLERY})
         xbmcplugin.addDirectoryItem(self.handle, url, item, True)
 
         return 4

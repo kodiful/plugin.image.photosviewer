@@ -121,10 +121,13 @@ msgid "Others"
 msgstr ""
 
 msgctxt "#30301"
-msgid "Display HEIC Images"
+msgid "Google Maps API key"
 msgstr ""
 
 msgctxt "#30302"
-msgid "Debug"
+msgid "Display HEIC Images"
 msgstr ""
 
+msgctxt "#30303"
+msgid "Debug"
+msgstr ""

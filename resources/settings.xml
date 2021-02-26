@@ -11,7 +11,8 @@
     <setting label="30201" id="photo_library_path" type="folder" source="" default=""/>
   </category>
   <category label="30300">
-    <setting label="30301" id="heic" type="enum" lvalues="30040|30041|30042"/>
-    <setting label="30302" id="debug" type="bool" default="false"/>
+    <setting label="30301" id="apikey" type="text" default=""/>
+    <setting label="30302" id="heic" type="enum" lvalues="30040|30041|30042"/>
+    <setting label="30303" id="debug" type="bool" default="false"/>
   </category>
 </settings>

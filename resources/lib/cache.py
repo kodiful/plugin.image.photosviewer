@@ -1,13 +1,10 @@
 # -*- coding: utf-8 -*-
 
-import xbmc
-import xbmcaddon
 import os
 import subprocess
 import hashlib
 
-from resources.lib.common import *
-from resources.lib.const import *
+from resources.lib.const import Const
 
 
 class Cache:

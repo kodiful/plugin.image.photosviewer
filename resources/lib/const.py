@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 
 import os
-import xbmc
+
 import xbmcaddon
 import xbmcvfs
 
 
 class Const:
 
-    # ガラポンTVクライアント
+    # アドオン情報
     ADDON = xbmcaddon.Addon()
     ADDON_ID = ADDON.getAddonInfo('id')
-    BASE_URL = 'plugin://%s' % ADDON_ID
+    ADDON_URL = 'plugin://%s' % ADDON_ID
 
     STR = ADDON.getLocalizedString
     GET = ADDON.getSetting

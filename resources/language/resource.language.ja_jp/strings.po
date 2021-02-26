@@ -121,10 +121,13 @@ msgid "Others"
 msgstr "その他"
 
 msgctxt "#30301"
+msgid "Google Maps API key"
+msgstr "GoogleマップのAPIキー"
+
+msgctxt "#30302"
 msgid "Display HEIC Images"
 msgstr "HEIC画像の表示"
 
-msgctxt "#30302"
+msgctxt "#30303"
 msgid "Debug"
 msgstr "デバッグ"
-
